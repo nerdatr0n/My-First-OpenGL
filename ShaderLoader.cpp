@@ -8,10 +8,13 @@ ShaderLoader::~ShaderLoader(void){}
 
 GLuint ShaderLoader::CreateProgram(const char* vertexShaderFilename, const char* fragmentShaderFilename)
 {
-	GLuint program = glCreateProgram();
 
-	glAttachShader(program, CreateShader(GL_VERTEX_SHADER, vertexShaderFilename));
-	glAttachShader(program, CreateShader(GL_FRAGMENT_SHADER, fragmentShaderFilename));
+	GLuint VertexId = CreateShader(GL_VERTEX_SHADER, vertexShaderFilename);
+	GLuint FragmentId = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderFilename);
+
+	GLuint program = glCreateProgram();
+	glAttachShader(program, VertexId);
+	glAttachShader(program, FragmentId);
 
 	glLinkProgram(program);
 
@@ -40,6 +43,8 @@ GLuint ShaderLoader::CreateShader(GLenum shaderType, const char* shaderName)
 	GLuint shaderID = glCreateShader(shaderType);
 	
 	glShaderSource(shaderID, 1, &CharPointer, &LenghtOfString);
+
+	glCompileShader(shaderID);
 
 	// Check for errors
 	int compile_result = 0;
