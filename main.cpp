@@ -2,6 +2,7 @@
 
 #include <glew.h>
 #include <freeglut.h>
+#include <SOIL.h>
 #include <iostream>
 
 #include "ShaderLoader.h"
@@ -12,26 +13,41 @@ GLfloat currentTime;
 
 GLfloat vertices[]
 {
-	// Position				// Color
-	-0.5f, -0.5f, 0.0f,		1.0f, 0.0f, 0.0f, //Left
-	 0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f, //Left
-	 0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f, //Left
-
-	-0.5f, -0.5f, 0.0f,		1.0f, 0.0f, 0.0f, //Left
-	 0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f, //Left
-	-0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f, //Left
+	// Position				// Color			// Texture Coords
+	-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Top - Left
+	-0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Bot - Left
+	 0.5f, -0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	1.0f, 1.0f, // Top - Right
+	 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	1.0f, 0.0f, // Bot - Right
 };
 
+
+GLuint indices[]
+{
+	0, 1, 2,	// First triangle
+	0, 2, 3,	// Second triangle
+};
+
+GLuint texture;
+
 GLuint VAO;
+GLuint EBO;
 GLuint VBO;
 
 
 void Render()
 {
+
+	
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Render code will be written here
 	glUseProgram(program);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(program, "tex"), 0);
+
 	glBindVertexArray(VAO);
 
 	currentTime = glutGet(GLUT_ELAPSED_TIME);
@@ -41,9 +57,11 @@ void Render()
 	glUniform1f(currentTimeLoc, currentTime);
 
 
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+
+	
 
 
 	glutSwapBuffers();
@@ -63,6 +81,8 @@ void Update()
 
 int main(int argc, char** argv)
 {
+	system("color f0");
+
 
 	// Setup and create at glut controlled window
 	glutInit(&argc, argv);
@@ -85,27 +105,69 @@ int main(int argc, char** argv)
 	// Sets the clear lolor when calling glClear()
 	glClearColor(1.0, 0.0, 0.0, 1.0);
 
+
+
+	// Culls the not needed faces
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
+
+
+	// Creates the program
 	program = ShaderLoader::CreateProgram("Resource/Shaders/basic.vs",
 		"Resource/Shaders/basic.fs");
 
+
+
+	// Creates teh VBO, EBO and VAO
+
+
+
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
-
-
+	
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
+	// Makes the texture
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	int width, height;
+	unsigned char* image = SOIL_load_image("Resource/Textures/Logo Small.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	// Wraps the texture
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// smoothes it
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+
+
+	// Makes the points Point things
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
-
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
 
 
 	// Register callbacks
