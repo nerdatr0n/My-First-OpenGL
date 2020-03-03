@@ -1,3 +1,17 @@
+//
+// Bachelor of Software Engineering
+// Media Design School
+// Auckland
+// New Zealand
+//
+// (c) 2020 Media Design School
+//
+// File Name   : main.cpp
+// Description : Main file
+// Author      : David Haverland
+// Mail        : david.hav8466@mediadesign.school.nz
+//
+
 
 
 #include <glew.h>
@@ -10,8 +24,9 @@
 #include "gtc/type_ptr.hpp"
 
 #include "ShaderLoader.h"
-
+#include "GameManager.h"
 #include "camera.h"
+
 
 using namespace glm;
 
@@ -22,7 +37,7 @@ GLfloat vertices[]
 {
 	// Position				// Color			// Texture Coords
 	-4.0f,  5.0f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Top - Left
-	-6.5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f, // Mid - Left
+	-6.5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,	-0.2f, 0.5f, // Mid - Left
 	-4.0f, -5.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Bot - Left
 	 4.0f, -5.0f, 0.0f,		1.0f, 1.0f, 0.0f,	1.0f, 1.0f, // Top - Right
 	 6.5f,  0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f, // Mid - Right
@@ -143,7 +158,17 @@ void Update()
 
 int main(int argc, char** argv)
 {
+
+
+
+
+	GameManager gameManager(argc, argv);
+
+	// Makes the console white
 	system("color f0");
+
+
+
 
 
 	// Setup and create at glut controlled window
@@ -183,9 +208,6 @@ int main(int argc, char** argv)
 
 
 	// Creates the VBO, EBO and VAO
-
-
-
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	
@@ -202,6 +224,7 @@ int main(int argc, char** argv)
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	// Makes variables to set the width and height to
 	int width, height;
 	unsigned char* image = SOIL_load_image("Resource/Textures/Logo Small.png", &width, &height, 0, SOIL_LOAD_RGBA);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
