@@ -132,13 +132,13 @@ void Update()
 	glutPostRedisplay();
 }
 
-void ShutDown()
-{
-	gameManager->ShutDown();
-	delete gameManager;
-
-	gameManager = 0;
-}
+//void ShutDown()
+//{
+//	gameManager->ShutDown();
+//	delete gameManager;
+//
+//	gameManager = 0;
+//}
 
 
 int main(int argc, char** argv)
@@ -235,7 +235,7 @@ int main(int argc, char** argv)
 	// Register callbacks
 	glutDisplayFunc(Render);
 	glutIdleFunc(Update);
-	glCloseFunc(ShutDown);
+	//glCloseFunc(ShutDown);
 	glutMainLoop();
 	return 0;
 }
