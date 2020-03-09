@@ -12,10 +12,11 @@ out vec2 fragTexCoord;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
+uniform float currentTime;
 
 void main()
 {
 	gl_Position = proj * view * model * vec4(position, 1.0);
 	fragColor = color;
-	fragTexCoord = texCoord;
+	fragTexCoord = texCoord * sin(currentTime);
 }

@@ -33,33 +33,12 @@ private:
 	GLuint program;
 	GLfloat currentTime;
 
-	GLuint texture;
+	GLuint texture01;
+	GLuint texture02;
 
 	GLuint VAO;
 	GLuint EBO;
 	GLuint VBO;
-
-
-	// EVERYTHING BELOW THIS SHOULD BE REMOVED AT SOME POINT
-	GLfloat vertices[]
-	{
-		// Position				// Color			// Texture Coords
-		-4.0f,  5.0f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Top - Left
-		-6.5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,	-0.2f, 0.5f, // Mid - Left
-		-4.0f, -5.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Bot - Left
-		 4.0f, -5.0f, 0.0f,		1.0f, 1.0f, 0.0f,	1.0f, 1.0f, // Top - Right
-		 6.5f,  0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f, // Mid - Right
-		 4.0f,  5.0f, 0.0f,		0.0f, 0.0f, 1.0f,	1.0f, 0.0f, // Bot - Right
-	};
-
-
-	GLuint indices[]
-	{
-		0, 1, 2,	// First triangle
-		0, 3, 5,	// Second triangle
-		3, 4, 5,	// Second triangle
-		0, 2, 3,	// Second triangle
-	};
 
 
 	// Camera Variables
