@@ -18,5 +18,5 @@ void main()
 {
 	gl_Position = proj * view * model * vec4(position, 1.0);
 	fragColor = color;
-	fragTexCoord = texCoord * sin(currentTime);
+	fragTexCoord = texCoord * abs(tan(currentTime));
 }

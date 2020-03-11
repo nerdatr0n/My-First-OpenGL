@@ -45,29 +45,15 @@ using namespace glm;
 
 int main(int argc, char** argv)
 {
+	// Makes the console white
+	system("color f0");
 
-
+	// Adds text to the console
+	std::cout << std::endl << std::endl << "	Hexagons: LightMode" << std::endl;
 
 
 	GameManager gameManager(argc, argv);
-
-	// Makes the c1onsole white
-	system("color f0");
-
-
-
-
-	// Sets the clear lolor when calling glClear()
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-
-
-	// Culls the not needed faces
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-
-
+	
 	glutMainLoop();
 	return 0;
 }

@@ -23,6 +23,7 @@
 
 #include "GameManager.h"
 #include "ShaderLoader.h"
+#include "camera.h"
 
 using namespace glm;
 
@@ -50,12 +51,12 @@ GameManager::GameManager(int argc, char** argv)
 	GLfloat vertices[]
 	{
 		// Position				// Color			// Texture Coords
-		-4.0f,  5.0f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Top - Left
+		-4.0f,  5.0f, 0.0f,		1.0f, 0.0f, 0.0f,	 0.0f, 0.0f, // Top - Left
 		-6.5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,	-0.2f, 0.5f, // Mid - Left
-		-4.0f, -5.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Bot - Left
-		 4.0f, -5.0f, 0.0f,		1.0f, 1.0f, 0.0f,	1.0f, 1.0f, // Top - Right
-		 6.5f,  0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f, // Mid - Right
-		 4.0f,  5.0f, 0.0f,		0.0f, 0.0f, 1.0f,	1.0f, 0.0f, // Bot - Right
+		-4.0f, -5.0f, 0.0f,		0.0f, 1.0f, 0.0f,	 0.0f, 1.0f, // Bot - Left
+		 4.0f, -5.0f, 0.0f,		1.0f, 1.0f, 0.0f,	 1.0f, 1.0f, // Top - Right
+		 6.5f,  0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	 1.2f, 0.5f, // Mid - Right
+		 4.0f,  5.0f, 0.0f,		0.0f, 0.0f, 1.0f,	 1.0f, 0.0f, // Bot - Right
 	};
 
 
@@ -85,9 +86,10 @@ GameManager::GameManager(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(50, 50);
 	glutInitWindowSize(800, 800);
-	glutCreateWindow("[SAMPLE TEXT] Studios Ltd.");
+	glutCreateWindow("Hexagons: LightMode by [SAMPLE TEXT] Studios Ltd.");
 	
 	
+
 	// Sets up all gl function callbacks based on pc hardware
 	if (glewInit() != GLEW_OK)
 	{
@@ -104,7 +106,7 @@ GameManager::GameManager(int argc, char** argv)
 	program = ShaderLoader::CreateProgram("Resource/Shaders/basic.vs",
 		"Resource/Shaders/basic.fs");
 
-
+	
 
 	// Creates the VBO, EBO and VAO
 	glGenVertexArrays(1, &VAO);
@@ -120,41 +122,17 @@ GameManager::GameManager(int argc, char** argv)
 
 
 
+	// Makes the textures
+	CreateTexture(&texture01, "Resource/Textures/Logo Small.png");
 
-	// Makes the texture
-	glGenTextures(1, &texture01);
-	glBindTexture(GL_TEXTURE_2D, texture01);
-
-	// Makes variables to set the width and height to
-	int width, height;
-	unsigned char* image01 = SOIL_load_image("Resource/Textures/Logo Small.png", &width, &height, 0, SOIL_LOAD_RGBA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image01);
-
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SOIL_free_image_data(image01);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-
-	glGenTextures(1, &texture02);
-	glBindTexture(GL_TEXTURE_2D, texture02);
-	
-	// Makes variables to set the width and height to
-	int width02, height02;
-	unsigned char* image02 = SOIL_load_image("Resource/Textures/AwesomeFace.png", &width02, &height02, 0, SOIL_LOAD_RGBA);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width02, height02, 0, GL_RGBA, GL_UNSIGNED_BYTE, image02);
-	
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SOIL_free_image_data(image02);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-
+	CreateTexture(&texture02, "Resource/Textures/Merch.png");
 
 
 	// Wraps the texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	// smoothes it
+	// Smoothes it
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -170,6 +148,17 @@ GameManager::GameManager(int argc, char** argv)
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 
+	Camera  = new CCamera(&program);
+
+	// Sets the clear color when calling glClear()
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+
+
+	// Culls the not needed faces
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
 
 	// Register callbacks
 	glutDisplayFunc(RenderCallback);
@@ -183,6 +172,23 @@ GameManager::GameManager(int argc, char** argv)
 GameManager::~GameManager()
 {
 
+	delete Camera;
+}
+
+void GameManager::CreateTexture(GLuint* _texture, const CHAR* _fileLocation)
+{
+	// Makes the texture
+	glGenTextures(1, _texture);
+	glBindTexture(GL_TEXTURE_2D, *_texture);
+
+	// Makes variables to set the width and height to
+	int width, height;
+	unsigned char* image01 = SOIL_load_image(_fileLocation, &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image01);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	SOIL_free_image_data(image01);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
@@ -193,7 +199,96 @@ void GameManager::Render()
 	// Render code will be written here
 	glUseProgram(program);
 
+	// Binds the texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture01);
+	glUniform1i(glGetUniformLocation(program, "tex"), 0);
 
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture02);
+	glUniform1i(glGetUniformLocation(program, "tex1"), 1);
+
+	glBindVertexArray(VAO);
+
+
+
+	// Translation Matrix
+	vec3 objPosition = vec3(170.0f, 0.0f, 0.0f);
+	mat4 translationMatrix = translate(mat4(), objPosition);
+
+	// Rotation Matrix
+	vec3 rotationAxisZ = vec3(0.0f, 0.0f, 1.0f); // Axis to rotate on
+	float rotationAngle = 0; // Rotation amount
+	mat4 rotationZ = rotate(mat4(), radians(rotationAngle), rotationAxisZ);
+
+	// Scale Matrix
+	vec3 objScale = vec3(0.25f, 0.25f, 0.25f);
+	mat4 scaleMatrix = scale(mat4(), objScale * 100.0f);
+
+	// Create model matrix to combine them
+	mat4 model = translationMatrix * rotationZ * scaleMatrix;
+	GLuint modelLoc = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+
+
+	Camera->Render();
+
+
+
+	// Draws the triangle
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
+	// Translation Matrix
+	objPosition = vec3(-170.0f, 0.0f, 0.0f);
+	translationMatrix = translate(mat4(), objPosition);
+
+	// Rotation Matrix
+	rotationAxisZ = vec3(0.0f, 0.0f, 1.0f); // Axis to rotate on
+	rotationAngle = 0; // Rotation amount
+	rotationZ = rotate(mat4(), radians(rotationAngle), rotationAxisZ);
+
+	// Scale Matrix
+	objScale = vec3(0.25f, 0.25f, 0.25f);
+	scaleMatrix = scale(mat4(), objScale * 100.0f);
+
+	// Create model matrix to combine them
+	model = translationMatrix * rotationZ * scaleMatrix;
+	modelLoc = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+
+
+	Camera->Render();
+
+	// Draws the triangle
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
+
+	// Makes and passes in the uniform
+	currentTime = glutGet(GLUT_ELAPSED_TIME);
+	currentTime = currentTime * 0.001f;
+
+	GLint currentTimeLoc = glGetUniformLocation(program, "currentTime");
+	glUniform1f(currentTimeLoc, currentTime);
+
+
+	// Draws the triangle
+	//glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
+
+	glBindVertexArray(0);
+	glUseProgram(0);
+
+
+
+	// Swaps the buffers
+	glutSwapBuffers();
+}
+
+
+
+
+void GameManager::Update()
+{
 	// Translation Matrix
 	vec3 objPosition = vec3(0.5f, 0.5f, 0.0f);
 	mat4 translationMatrix = translate(mat4(), objPosition);
@@ -219,61 +314,6 @@ void GameManager::Render()
 
 	GLuint viewLoc = glGetUniformLocation(program, "view");
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
-
-
-	// Orthographic Center Camera
-	mat4 proj;
-	float halfScreenWidth = (float)SCR_WIDTH * 0.5f;
-	float halfScreenHeight = (float)SCR_HEIGHT * 0.5f;
-	proj = ortho(-halfScreenWidth, halfScreenWidth, -halfScreenHeight, halfScreenHeight, 0.1f, 100.0f);
-	GLuint projLoc = glGetUniformLocation(program, "proj");
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(proj));
-
-
-	// Binds the texture
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture01);
-	glUniform1i(glGetUniformLocation(program, "tex"), 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture02);
-	glUniform1i(glGetUniformLocation(program, "tex1"), 1);
-
-	glBindVertexArray(VAO);
-
-
-	// Makes and passes in the uniform
-	currentTime = glutGet(GLUT_ELAPSED_TIME);
-	currentTime = currentTime * 0.001f;
-
-	GLint currentTimeLoc = glGetUniformLocation(program, "currentTime");
-	glUniform1f(currentTimeLoc, currentTime);
-
-
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-
-
-
-
-
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-
-
-	glBindVertexArray(0);
-	glUseProgram(0);
-
-
-
-
-	glutSwapBuffers();
-}
-
-
-
-
-void GameManager::Update()
-{
-
 
 	// Updates the game
 	glutPostRedisplay();

@@ -15,7 +15,7 @@
 
 #pragma once
 
-
+#include "camera.h"
 
 class GameManager
 {
@@ -23,6 +23,8 @@ public:
 
 	GameManager(int argc, char** argv);
 	~GameManager();
+
+	void CreateTexture(GLuint* _texture, const CHAR* _fileLocation);
 
 
 
@@ -39,6 +41,8 @@ private:
 	GLuint VAO;
 	GLuint EBO;
 	GLuint VBO;
+
+	CCamera* Camera;
 
 
 	// Camera Variables
