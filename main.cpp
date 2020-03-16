@@ -31,18 +31,12 @@
 using namespace glm;
 
 
-//GLfloat currentTime;
 
-
-//void ShutDown()
-//{
-//	gameManager->ShutDown();
-//	delete gameManager;
 //
-//	gameManager = 0;
-//}
-
-
+// Is the main
+// Argument: atgc, argv pointer pointer
+// Return: Void
+//
 int main(int argc, char** argv)
 {
 	// Makes the console white

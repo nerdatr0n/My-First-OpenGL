@@ -31,11 +31,24 @@ using namespace glm;
 GameManager* GlobalGameManager;
 
 
+
+//
+// Calls the gamemanager render
+// Argument: Void
+// Return: Void
+//
 void RenderCallback()
 {
 	GlobalGameManager->Render();
 }
 
+
+
+//
+// Calls the gamemanager Update
+// Argument: Void
+// Return: Void
+//
 void UpdateCallback()
 {
 	GlobalGameManager->Update();
@@ -43,6 +56,11 @@ void UpdateCallback()
 
 
 
+//
+// Constructer for GameMaker
+// Argument: argc, argv
+// Return: Void
+//
 GameManager::GameManager(int argc, char** argv)
 {
 	currentTime = 0;
@@ -169,12 +187,26 @@ GameManager::GameManager(int argc, char** argv)
 
 }
 
+
+
+//
+// GameMaker Destructer
+// Argument: Void
+// Return: Void
+//
 GameManager::~GameManager()
 {
 
 	delete Camera;
 }
 
+
+
+//
+// Creates Texture
+// Argument: Texture Pointer, File Location
+// Return: Void
+//
 void GameManager::CreateTexture(GLuint* _texture, const CHAR* _fileLocation)
 {
 	// Makes the texture
@@ -192,6 +224,12 @@ void GameManager::CreateTexture(GLuint* _texture, const CHAR* _fileLocation)
 }
 
 
+
+//
+// Runs the Render
+// Argument: Void
+// Return: Void
+//
 void GameManager::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -264,7 +302,7 @@ void GameManager::Render()
 
 
 	// Makes and passes in the uniform
-	currentTime = glutGet(GLUT_ELAPSED_TIME);
+	currentTime = static_cast<GLfloat>(glutGet(GLUT_ELAPSED_TIME));
 	currentTime = currentTime * 0.001f;
 
 	GLint currentTimeLoc = glGetUniformLocation(program, "currentTime");
@@ -286,7 +324,11 @@ void GameManager::Render()
 
 
 
-
+//
+// Runs the Update
+// Argument: Void
+// Return: Void
+//
 void GameManager::Update()
 {
 	// Translation Matrix
