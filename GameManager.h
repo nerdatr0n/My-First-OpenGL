@@ -44,6 +44,10 @@ private:
 
 	CCamera* Camera;
 
+	// Audio
+	FMOD::System* audioSystem;
+	FMOD::Sound fxThump;
+	FMOD::Sound trackBackground;
 
 	// Camera Variables
 	glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f);

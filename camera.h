@@ -20,6 +20,7 @@
 #include <freeglut.h>
 #include <SOIL.h>
 #include <iostream>
+#include <fmod.hpp>
 
 #include "camera.h"
 

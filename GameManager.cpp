@@ -16,6 +16,7 @@
 #include <freeglut.h>
 #include <SOIL.h>
 #include <iostream>
+#include <fmod.hpp>
 
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -29,7 +30,6 @@ using namespace glm;
 
 
 GameManager* GlobalGameManager;
-
 
 
 //
@@ -63,6 +63,11 @@ void UpdateCallback()
 //
 GameManager::GameManager(int argc, char** argv)
 {
+
+	// Creates 
+	FMOD::System_Create(&audioSystem);
+
+
 	currentTime = 0;
 
 	GlobalGameManager = this;

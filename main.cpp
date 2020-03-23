@@ -18,6 +18,7 @@
 #include <freeglut.h>
 #include <SOIL.h>
 #include <iostream>
+#include <fmod.hpp>
 
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -30,6 +31,9 @@
 
 using namespace glm;
 
+
+
+// Global variables
 
 
 //
