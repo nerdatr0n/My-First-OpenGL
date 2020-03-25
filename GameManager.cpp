@@ -48,6 +48,7 @@ GameManager::GameManager(int argc, char** argv)
 	currentTime = 0;
 
 	GlobalGameManager = this;
+
 	GLfloat vertices[]
 	{
 		// Position				// Color			// Texture Coords

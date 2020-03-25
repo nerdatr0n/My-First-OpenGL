@@ -17,6 +17,10 @@
 
 #include "camera.h"
 
+void RenderCallback();
+void UpdateCallback();
+
+
 class GameManager
 {
 public:
