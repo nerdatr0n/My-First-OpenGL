@@ -18,6 +18,7 @@
 #include <freeglut.h>
 #include <SOIL.h>
 #include <iostream>
+#include <fmod.hpp>
 
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -31,18 +32,15 @@
 using namespace glm;
 
 
-//GLfloat currentTime;
+
+// Global variables
 
 
-//void ShutDown()
-//{
-//	gameManager->ShutDown();
-//	delete gameManager;
 //
-//	gameManager = 0;
-//}
-
-
+// Is the main
+// Argument: atgc, argv pointer pointer
+// Return: Void
+//
 int main(int argc, char** argv)
 {
 	// Makes the console white

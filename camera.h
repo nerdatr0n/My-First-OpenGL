@@ -1,3 +1,18 @@
+//
+// Bachelor of Software Engineering
+// Media Design School
+// Auckland
+// New Zealand
+//
+// (c) 2020 Media Design School
+//
+// File Name   : camera.h
+// Description : Header for camera class
+// Author      : David Haverland
+// Mail        : david.hav8466@mediadesign.school.nz
+//
+
+
 #pragma once
 
 
@@ -5,6 +20,7 @@
 #include <freeglut.h>
 #include <SOIL.h>
 #include <iostream>
+#include <fmod.hpp>
 
 #include "camera.h"
 

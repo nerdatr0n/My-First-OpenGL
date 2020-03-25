@@ -1,3 +1,18 @@
+//
+// Bachelor of Software Engineering
+// Media Design School
+// Auckland
+// New Zealand
+//
+// (c) 2020 Media Design School
+//
+// File Name   : camera.cpp
+// Description : Camera class
+// Author      : David Haverland
+// Mail        : david.hav8466@mediadesign.school.nz
+//
+
+
 
 #include <glew.h>
 #include <freeglut.h>
@@ -14,6 +29,11 @@ using namespace glm;
 
 
 
+//
+// Constucture for Camera
+// Argument: Program Pointer
+// Return: Void
+//
 CCamera::CCamera(GLuint* _program)
 {
 
@@ -24,25 +44,15 @@ CCamera::CCamera(GLuint* _program)
 	camLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
 	camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
 
-
-	// Screen/Viewport size
-	//const unsigned int SCR_WIDTH = 800;
-	//const unsigned int SCR_HEIGHT = 800;
-
-	// View Matrix
-
-	
-
-
-	// Orthographic Center Camera
-	//mat4 proj;
-	//float halfScreenWidth = (float)SCR_WIDTH * 0.5f;
-	//float halfScreenHeight = (float)SCR_HEIGHT * 0.5f;
-	//proj = ortho(-halfScreenWidth, halfScreenWidth, -halfScreenHeight, halfScreenHeight, 0.1f, 100.0f);
-	//GLuint projLoc = glGetUniformLocation(*m_pProgram, "proj");
-	//glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(proj));
 }
 
+
+
+//
+// Makes the camera Matrix
+// Argument: Void
+// Return: Void
+//
 void CCamera::Render()
 {
 	mat4 view = lookAt(camPos, camPos + camLookDir, camUpDir);
@@ -61,6 +71,13 @@ void CCamera::Render()
 
 }
 
+
+
+//
+// Calls the gamemanager Destructure
+// Argument: Void
+// Return: Void
+//
 CCamera::~CCamera()
 {
 }
