@@ -12,23 +12,14 @@
 // Mail        : david.hav8466@mediadesign.school.nz
 //
 
-#include <glew.h>
-#include <freeglut.h>
-#include <SOIL.h>
-#include <iostream>
-#include <fmod.hpp>
-
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
 
 #include "GameManager.h"
-#include "ShaderLoader.h"
-#include "camera.h"
-
-using namespace glm;
 
 
+
+
+
+// So that the render thing works
 GameManager* GlobalGameManager;
 
 
@@ -57,40 +48,40 @@ void UpdateCallback()
 
 
 //
+// ???
+// Argument: Void
+// Return: Void
+//
+void KeyboardDownCallback(unsigned char key, int x, int y)
+{
+	GlobalGameManager->KeyboardDown(key, x, y);
+}
+
+
+
+//
+// ???
+// Argument: Void
+// Return: Void
+//
+void KeyboardUpCallback(unsigned char key, int x, int y)
+{
+	GlobalGameManager->KeyboardUp(key, x, y);
+}
+
+
+
+//
 // Constructer for GameMaker
 // Argument: argc, argv
 // Return: Void
 //
 GameManager::GameManager(int argc, char** argv)
 {
-
-	// Creates 
-	FMOD::System_Create(&audioSystem);
-
-
 	currentTime = 0;
 
 	GlobalGameManager = this;
 
-	GLfloat vertices[]
-	{
-		// Position				// Color			// Texture Coords
-		-4.0f,  5.0f, 0.0f,		1.0f, 0.0f, 0.0f,	 0.0f, 0.0f, // Top - Left
-		-6.5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,	-0.2f, 0.5f, // Mid - Left
-		-4.0f, -5.0f, 0.0f,		0.0f, 1.0f, 0.0f,	 0.0f, 1.0f, // Bot - Left
-		 4.0f, -5.0f, 0.0f,		1.0f, 1.0f, 0.0f,	 1.0f, 1.0f, // Top - Right
-		 6.5f,  0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	 1.2f, 0.5f, // Mid - Right
-		 4.0f,  5.0f, 0.0f,		0.0f, 0.0f, 1.0f,	 1.0f, 0.0f, // Bot - Right
-	};
-
-
-	GLuint indices[]
-	{
-		0, 1, 2,	// First triangle
-		0, 3, 5,	// Second triangle
-		3, 4, 5,	// Second triangle
-		0, 2, 3,	// Second triangle
-	};
 
 
 	// Camera Variables
@@ -99,8 +90,8 @@ GameManager::GameManager(int argc, char** argv)
 	glm::vec3 camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	// Screen/Viewport size
-	const unsigned int SCR_WIDTH = 800;
-	const unsigned int SCR_HEIGHT = 800;
+	const unsigned int SCR_WIDTH = Utils::SCR_WIDTH;
+	const unsigned int SCR_HEIGHT = Utils::SCR_HEIGHT;
 
 
 
@@ -109,7 +100,7 @@ GameManager::GameManager(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(50, 50);
-	glutInitWindowSize(800, 800);
+	glutInitWindowSize(Utils::SCR_WIDTH, Utils::SCR_HEIGHT);
 	glutCreateWindow("Hexagons: LightMode by [SAMPLE TEXT] Studios Ltd.");
 	
 	
@@ -120,37 +111,41 @@ GameManager::GameManager(int argc, char** argv)
 		// If glew setup failed then application will not run graphics correctly
 		std::cout << "glew Initalizzation Failed. Aborting application." << std::endl;
 		system("pause");
-	
-		// Didnt know what to replace this with so i just left it
-		// return 0;
 	}
 
+
+	Text = new TextLabel("[SAMPLE TEXT]", "Resource/Fonts/AdventPro-Bold.ttf", glm::vec2(-350.0f, 300.0f));
 
 	// Creates the program
 	program = ShaderLoader::CreateProgram("Resource/Shaders/basic.vs",
 		"Resource/Shaders/basic.fs");
 
+
+	m_pCamera = new CCamera(&program);
+
 	
 
-	// Creates the VBO, EBO and VAO
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	// Initalises the sound manager and sounds
+	AudioInit();
+	CreateSound(trackBackground, "Resource/Audio/Background.mp3");
+	CreateSound(fxThump, "Resource/Audio/Thump.wav");
 
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	FMOD_RESULT result;
+	result = audioSystem->createSound(
+		"Resource/Audio/Eric Taxxon - Nostalgia - 06 Warrior.mp3",
+		FMOD_LOOP_NORMAL,
+		0,
+		&trackBackground);
+	result = audioSystem->createSound(
+		"Resource/Audio/Thump.wav",
+		FMOD_DEFAULT,
+		0,
+		&fxThump);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-
-
-	// Makes the textures
-	CreateTexture(&texture01, "Resource/Textures/Logo Small.png");
-
-	CreateTexture(&texture02, "Resource/Textures/Merch.png");
-
+	
+	m_vecObjects.push_back(new CMesh(m_pCamera, &program, glm::vec3(300.0f, 0.0f, 0.0f)));
+	m_vecObjects.push_back(new CMesh(m_pCamera, &program, glm::vec3(-300.0f, 0.0f, 0.0f)));
 
 	// Wraps the texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -162,17 +157,7 @@ GameManager::GameManager(int argc, char** argv)
 
 
 
-	// Makes the points Point things
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
-
-	Camera  = new CCamera(&program);
+	
 
 	// Sets the clear color when calling glClear()
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -184,10 +169,23 @@ GameManager::GameManager(int argc, char** argv)
 	glFrontFace(GL_CCW);
 
 
+
+	
+
+	result = audioSystem->playSound(trackBackground, 0, false, 0);
+
+	if (result != FMOD_OK)
+	{
+		std::cout << "Big ol error" << std::endl;
+	}
+
+
 	// Register callbacks
 	glutDisplayFunc(RenderCallback);
 	glutIdleFunc(UpdateCallback);
 	//glCloseFunc(ShutDown);
+	glutKeyboardFunc(KeyboardDownCallback);
+	glutKeyboardUpFunc(KeyboardUpCallback);
 	glutMainLoop();
 
 
@@ -202,8 +200,55 @@ GameManager::GameManager(int argc, char** argv)
 //
 GameManager::~GameManager()
 {
+	fxThump->release();
+	trackBackground->release();
+	audioSystem->release();
 
-	delete Camera;
+	delete m_pCamera;
+
+	for (int i = 0; i < (int)m_vecObjects.size(); i++)
+	{
+		delete m_vecObjects[i];
+	}
+}
+
+
+bool GameManager::AudioInit()
+{
+	FMOD_RESULT result;
+	result = FMOD::System_Create(&audioSystem);
+	if (result != FMOD_OK)
+	{
+		return false;
+	}
+
+
+	result = audioSystem->init(100, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0);
+	if (result != FMOD_OK)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+
+bool GameManager::CreateSound(FMOD::Sound* _sound, const CHAR* _fileLocation)
+{
+	FMOD_RESULT result;
+	result = audioSystem->createSound(
+		_fileLocation,
+		FMOD_DEFAULT,
+		0,
+		&_sound);
+
+
+	if (result != FMOD_OK)
+	{
+		return false;
+	}
+	return true;
 }
 
 
@@ -238,93 +283,42 @@ void GameManager::CreateTexture(GLuint* _texture, const CHAR* _fileLocation)
 //
 void GameManager::Render()
 {
+	// Clears the Buffer - LEAVE AT TOP
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Render code will be written here
 	glUseProgram(program);
-
-	// Binds the texture
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture01);
-	glUniform1i(glGetUniformLocation(program, "tex"), 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture02);
-	glUniform1i(glGetUniformLocation(program, "tex1"), 1);
-
-	glBindVertexArray(VAO);
+	// All the Camera things
+	m_pCamera->Render();
 
 
-
-	// Translation Matrix
-	vec3 objPosition = vec3(170.0f, 0.0f, 0.0f);
-	mat4 translationMatrix = translate(mat4(), objPosition);
-
-	// Rotation Matrix
-	vec3 rotationAxisZ = vec3(0.0f, 0.0f, 1.0f); // Axis to rotate on
-	float rotationAngle = 0; // Rotation amount
-	mat4 rotationZ = rotate(mat4(), radians(rotationAngle), rotationAxisZ);
-
-	// Scale Matrix
-	vec3 objScale = vec3(0.25f, 0.25f, 0.25f);
-	mat4 scaleMatrix = scale(mat4(), objScale * 100.0f);
-
-	// Create model matrix to combine them
-	mat4 model = translationMatrix * rotationZ * scaleMatrix;
-	GLuint modelLoc = glGetUniformLocation(program, "model");
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+	Text->Render();
 
 
-	Camera->Render();
+	for (int i = 0; i < (int)m_vecObjects.size(); i++)
+	{
+		m_vecObjects[i]->Render();
+	}
 
+	
 
-
-	// Draws the triangle
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-
-	// Translation Matrix
-	objPosition = vec3(-170.0f, 0.0f, 0.0f);
-	translationMatrix = translate(mat4(), objPosition);
-
-	// Rotation Matrix
-	rotationAxisZ = vec3(0.0f, 0.0f, 1.0f); // Axis to rotate on
-	rotationAngle = 0; // Rotation amount
-	rotationZ = rotate(mat4(), radians(rotationAngle), rotationAxisZ);
-
-	// Scale Matrix
-	objScale = vec3(0.25f, 0.25f, 0.25f);
-	scaleMatrix = scale(mat4(), objScale * 100.0f);
-
-	// Create model matrix to combine them
-	model = translationMatrix * rotationZ * scaleMatrix;
-	modelLoc = glGetUniformLocation(program, "model");
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
-
-
-	Camera->Render();
-
-	// Draws the triangle
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-
-
-	// Makes and passes in the uniform
+	// Makes and passes in the time uniform
 	currentTime = static_cast<GLfloat>(glutGet(GLUT_ELAPSED_TIME));
 	currentTime = currentTime * 0.001f;
-
+	
 	GLint currentTimeLoc = glGetUniformLocation(program, "currentTime");
 	glUniform1f(currentTimeLoc, currentTime);
 
 
-	// Draws the triangle
-	//glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
+	
+	
 
 	glBindVertexArray(0);
 	glUseProgram(0);
 
 
 
-	// Swaps the buffers
+	// Swaps the buffers - LEAVE AT BOTTOM
 	glutSwapBuffers();
 }
 
@@ -337,32 +331,62 @@ void GameManager::Render()
 //
 void GameManager::Update()
 {
-	// Translation Matrix
-	vec3 objPosition = vec3(0.5f, 0.5f, 0.0f);
-	mat4 translationMatrix = translate(mat4(), objPosition);
+	audioSystem->update();
 
-	// Rotation Matrix
-	vec3 rotationAxisZ = vec3(0.0f, 0.0f, 1.0f);
-	float rotationAngle = 45;
-	mat4 rotationZ = rotate(mat4(), radians(rotationAngle), rotationAxisZ);
+	if (KeyState[' '] == INPUT_FIRST_DOWN)
+	{
+		std::cout << "Space" << std::endl;
+		FMOD_RESULT result;
 
-	// Scale Matrix
-	vec3 objScale = vec3(0.5f, 0.5f, 0.5f);
-	mat4 scaleMatrix = scale(mat4(), objScale * 100.0f);
+		result = audioSystem->playSound(fxThump, 0, false, 0);
 
-	// Create model matrix to combine them
-	mat4 model = translationMatrix * rotationZ * scaleMatrix;
-	GLuint modelLoc = glGetUniformLocation(program, "model");
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
+		if (result != FMOD_OK)
+		{
+			std::cout << "Big ol error" << std::endl;
+		}
+
+	}
+
+	for (int i = 0; i < (int)m_vecObjects.size(); i++)
+	{
+		m_vecObjects[i]->Update();
+	}
 
 
-
-	// View Matrix
-	mat4 view = lookAt(camPos, camPos + camLookDir, camUpDir);
-
-	GLuint viewLoc = glGetUniformLocation(program, "view");
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
+	
 
 	// Updates the game
 	glutPostRedisplay();
+
+
+	for (int i = 0; i < 255; i++)
+	{
+		if (KeyState[i] == INPUT_FIRST_DOWN)
+		{
+			KeyState[i] = INPUT_DOWN;
+		}
+		else if (KeyState[i] == INPUT_FIRST_UP)
+		{
+			KeyState[i] = INPUT_UP;
+		}
+	}
+
+}
+
+
+
+
+void GameManager::KeyboardInput()
+{
+
+}
+
+void GameManager::KeyboardDown(unsigned char key, int x, int y)
+{
+	KeyState[key] = INPUT_FIRST_DOWN;
+}
+
+void GameManager::KeyboardUp(unsigned char key, int x, int y)
+{
+	KeyState[key] = INPUT_FIRST_UP;
 }

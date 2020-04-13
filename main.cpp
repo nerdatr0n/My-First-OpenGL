@@ -29,11 +29,7 @@
 #include "camera.h"
 
 
-using namespace glm;
 
-
-
-// Global variables
 
 
 //
