@@ -36,14 +36,21 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Reasource\Shaders\basic.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Reasource\Shaders\basic.fs">
-      <Filter>Resource Files</Filter>
-    </None>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">
@@ -67,5 +74,76 @@
     <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\Shaders\basic.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\sphere.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\sphere.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\Text.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\Text.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\basic.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\normals.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\phong.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\phong.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\RimLighting.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\BlinnPhong.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\PhongAmbient.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\PhongDiffuse.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\PhongSpecular.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\cubeMap.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\cubeMap.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\Reflection.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\Shaders\Reflection.vs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

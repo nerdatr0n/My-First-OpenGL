@@ -31,19 +31,13 @@
 #include "camera.h"
 #include "TextLabel.h"
 #include "Mesh.h"
-
-
+#include "Sphere.h"
+#include "Sound.h"
+#include "Object.h"
+#include "CubeMap.h"
 
 void RenderCallback();
 void UpdateCallback();
-
-enum InputState
-{
-	INPUT_UP,
-	INPUT_DOWN,
-	INPUT_FIRST_UP,
-	INPUT_FIRST_DOWN
-};
 
 
 class GameManager
@@ -54,8 +48,6 @@ public:
 	~GameManager();
 
 	bool AudioInit();
-
-	bool CreateSound(FMOD::Sound* _sound, const CHAR* _fileLocation);
 
 	void CreateTexture(GLuint* _texture, const CHAR* _fileLocation);
 
@@ -69,12 +61,24 @@ public:
 
 	void KeyboardUp(unsigned char key, int x, int y);
 
+	float GetDeltatTime() { return m_fDeltaTime; }
+
 private:
+
+	void UpdateDeltaTime();
+
+	float m_fOldTime;
+	float m_fCurrentTime;
+	float m_fDeltaTime;
 
 	InputState KeyState[255];
 	TextLabel* Text;
 
-	GLuint program;
+	GLuint basicProgram;
+	GLuint sphereProgram;
+	GLuint phongProgram;
+	GLuint cubeMapProgram;
+	GLuint reflectionProgram;
 	GLfloat currentTime;
 
 	GLuint texture01;
@@ -88,20 +92,21 @@ private:
 
 	// Audio
 	FMOD::System* audioSystem;
-	FMOD::Sound* fxThump;
-	FMOD::Sound* trackBackground;
+	CSound* fxThump;
 
-	// Camera Variables
-	glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 camLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
+	CObject* GameObject;
+
+	CCubeMap* m_pCubeMap;
 
 	// Screen/Viewport size
 	const unsigned int SCR_WIDTH = Utils::SCR_WIDTH;
 	const unsigned int SCR_HEIGHT = Utils::SCR_HEIGHT;
 
+
+	// Objects
 	std::vector<CMesh*> m_vecObjects;
-	
+	Sphere* objSphere;
+
 };
 
 

@@ -83,27 +83,23 @@ GameManager::GameManager(int argc, char** argv)
 	GlobalGameManager = this;
 
 
-
-	// Camera Variables
-	glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 camLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
-
-	// Screen/Viewport size
-	const unsigned int SCR_WIDTH = Utils::SCR_WIDTH;
-	const unsigned int SCR_HEIGHT = Utils::SCR_HEIGHT;
-
-
-
-
 	// Setup and create at glut controlled window
 	glutInit(&argc, argv);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(50, 50);
 	glutInitWindowSize(Utils::SCR_WIDTH, Utils::SCR_HEIGHT);
-	glutCreateWindow("Hexagons: LightMode by [SAMPLE TEXT] Studios Ltd.");
+	glutCreateWindow("Life in 3D: LightMode by [SAMPLE TEXT] Studios Ltd.");
 	
-	
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	// Sets up all gl function callbacks based on pc hardware
 	if (glewInit() != GLEW_OK)
@@ -114,38 +110,34 @@ GameManager::GameManager(int argc, char** argv)
 	}
 
 
-	Text = new TextLabel("[SAMPLE TEXT]", "Resource/Fonts/AdventPro-Bold.ttf", glm::vec2(-350.0f, 300.0f));
+	Text = new TextLabel("[SAMPLE TEXT]", "Resource/Fonts/AdventPro-Bold.ttf", glm::vec2(-500.0f, 300.0f));
 
 	// Creates the program
-	program = ShaderLoader::CreateProgram("Resource/Shaders/basic.vs",
+	basicProgram = ShaderLoader::CreateProgram("Resource/Shaders/basic.vs",
 		"Resource/Shaders/basic.fs");
+	phongProgram = ShaderLoader::CreateProgram("Resource/Shaders/phong.vs",
+		"Resource/Shaders/BlinnPhong.fs");
+	cubeMapProgram = ShaderLoader::CreateProgram("Resource/Shaders/cubeMap.vs",
+		"Resource/Shaders/cubeMap.fs");
+	reflectionProgram = ShaderLoader::CreateProgram("Resource/Shaders/Reflection.vs",
+		"Resource/Shaders/Reflection.fs");
 
-
-	m_pCamera = new CCamera(&program);
+	m_pCamera = new CCamera(&basicProgram);
 
 	
 
 	// Initalises the sound manager and sounds
 	AudioInit();
-	CreateSound(trackBackground, "Resource/Audio/Background.mp3");
-	CreateSound(fxThump, "Resource/Audio/Thump.wav");
 
-	FMOD_RESULT result;
-	result = audioSystem->createSound(
-		"Resource/Audio/Eric Taxxon - Nostalgia - 06 Warrior.mp3",
-		FMOD_LOOP_NORMAL,
-		0,
-		&trackBackground);
-	result = audioSystem->createSound(
-		"Resource/Audio/Thump.wav",
-		FMOD_DEFAULT,
-		0,
-		&fxThump);
-
+	fxThump = new CSound("Resource/Audio/Thump.wav", audioSystem);
+	
 
 	
-	m_vecObjects.push_back(new CMesh(m_pCamera, &program, glm::vec3(300.0f, 0.0f, 0.0f)));
-	m_vecObjects.push_back(new CMesh(m_pCamera, &program, glm::vec3(-300.0f, 0.0f, 0.0f)));
+	m_vecObjects.push_back(new CMesh(m_pCamera, &basicProgram, glm::vec3(3.0f, 0.0f, 0.0f)));
+	m_vecObjects.push_back(new CMesh(m_pCamera, &basicProgram, glm::vec3(-3.0f, 0.0f, 0.0f)));
+	objSphere = new Sphere();
+	m_pCubeMap = new CCubeMap(m_pCamera, &cubeMapProgram);
+
 
 	// Wraps the texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -156,28 +148,15 @@ GameManager::GameManager(int argc, char** argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 
-
+	CreateTexture(&texture01, "Resource/Textures/Logo Small.png");
+	
+	GameObject = new CObject(m_pCamera, &phongProgram, objSphere->GetVAO(), objSphere->GetIndiceCount(), &texture01);
 	
 
 	// Sets the clear color when calling glClear()
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	//glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-
-	// Culls the not needed faces
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-
-
-
-	
-
-	result = audioSystem->playSound(trackBackground, 0, false, 0);
-
-	if (result != FMOD_OK)
-	{
-		std::cout << "Big ol error" << std::endl;
-	}
 
 
 	// Register callbacks
@@ -200,10 +179,14 @@ GameManager::GameManager(int argc, char** argv)
 //
 GameManager::~GameManager()
 {
-	fxThump->release();
-	trackBackground->release();
+	delete fxThump;
+	fxThump = 0;
+
+
 	audioSystem->release();
 
+	delete objSphere;
+	delete m_pCubeMap;
 	delete m_pCamera;
 
 	for (int i = 0; i < (int)m_vecObjects.size(); i++)
@@ -234,23 +217,13 @@ bool GameManager::AudioInit()
 
 
 
-bool GameManager::CreateSound(FMOD::Sound* _sound, const CHAR* _fileLocation)
+void GameManager::UpdateDeltaTime()
 {
-	FMOD_RESULT result;
-	result = audioSystem->createSound(
-		_fileLocation,
-		FMOD_DEFAULT,
-		0,
-		&_sound);
+	m_fOldTime = m_fCurrentTime;
+	m_fCurrentTime = static_cast<GLfloat>(glutGet(GLUT_ELAPSED_TIME)) / 1000;
+	m_fDeltaTime = m_fCurrentTime - m_fOldTime;
 
-
-	if (result != FMOD_OK)
-	{
-		return false;
-	}
-	return true;
 }
-
 
 
 //
@@ -283,34 +256,39 @@ void GameManager::CreateTexture(GLuint* _texture, const CHAR* _fileLocation)
 //
 void GameManager::Render()
 {
-	// Clears the Buffer - LEAVE AT TOP
-	glClear(GL_COLOR_BUFFER_BIT);
 
-	glUseProgram(program);
+	// Clears the Buffer - LEAVE AT TOP
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	
+	m_pCubeMap->Render();
+	
+
+	glUseProgram(basicProgram);
 	// All the Camera things
 	m_pCamera->Render();
 
 
 	Text->Render();
 
+	//GameObject->Render();
+	GameObject->RenderReflections(&reflectionProgram, m_pCubeMap->GetReflectionMap());
+	
 
 	for (int i = 0; i < (int)m_vecObjects.size(); i++)
 	{
 		m_vecObjects[i]->Render();
 	}
 
-	
-
 	// Makes and passes in the time uniform
 	currentTime = static_cast<GLfloat>(glutGet(GLUT_ELAPSED_TIME));
 	currentTime = currentTime * 0.001f;
 	
-	GLint currentTimeLoc = glGetUniformLocation(program, "currentTime");
+	GLint currentTimeLoc = glGetUniformLocation(basicProgram, "currentTime");
 	glUniform1f(currentTimeLoc, currentTime);
 
 
 
-	
 	
 
 	glBindVertexArray(0);
@@ -331,19 +309,20 @@ void GameManager::Render()
 //
 void GameManager::Update()
 {
+	UpdateDeltaTime();
 	audioSystem->update();
+
+	m_pCubeMap->Update();
+
+	m_pCamera->Update(GetDeltatTime());
+
+	GameObject->Update();
+
 
 	if (KeyState[' '] == INPUT_FIRST_DOWN)
 	{
-		std::cout << "Space" << std::endl;
-		FMOD_RESULT result;
 
-		result = audioSystem->playSound(fxThump, 0, false, 0);
-
-		if (result != FMOD_OK)
-		{
-			std::cout << "Big ol error" << std::endl;
-		}
+		fxThump->PlaySound();
 
 	}
 
@@ -351,7 +330,7 @@ void GameManager::Update()
 	{
 		m_vecObjects[i]->Update();
 	}
-
+	
 
 	
 

@@ -6,24 +6,50 @@ CMesh::CMesh(CCamera* _pCamera, GLuint* _pProgram, glm::vec3 _objPosition, glm::
 	m_pProgram = _pProgram;
 
 
+	float fSize = 0.5;
+
+
 	GLfloat vertices[]
 	{
-		// Position				// Color			// Texture Coords
-		-4.0f,  5.0f, 0.0f,		1.0f, 0.0f, 0.0f,	 0.0f, 0.0f, // Top - Left
-		-6.5f,  0.0f, 0.0f,		1.0f, 0.0f, 0.0f,	-0.2f, 0.5f, // Mid - Left
-		-4.0f, -5.0f, 0.0f,		0.0f, 1.0f, 0.0f,	 0.0f, 1.0f, // Bot - Left
-		 4.0f, -5.0f, 0.0f,		1.0f, 1.0f, 0.0f,	 1.0f, 1.0f, // Top - Right
-		 6.5f,  0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	 1.2f, 0.5f, // Mid - Right
-		 4.0f,  5.0f, 0.0f,		0.0f, 0.0f, 1.0f,	 1.0f, 0.0f, // Bot - Right
+		// Position				// Colour			// Texture Coords
+		-fSize, 0.0f, -fSize,	0.0f, 1.0f, 0.0f,	0.0f, 1.0f,
+		-fSize, 0.0f,  fSize,	0.0f, 1.0f, 0.0f,	0.0f, 0.0f,
+		 fSize, 0.0f,  fSize,	0.0f, 1.0f, 0.0f,	1.0f, 0.0f,
+		 fSize, 0.0f, -fSize,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,
+		
+		-fSize, 0.0f, -fSize,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,
+		 fSize, 0.0f, -fSize,	0.0f, 1.0f, 0.0f,	0.0f, 1.0f,
+
+		 fSize, 0.0f, -fSize,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,
+		 fSize, 0.0f,  fSize,	0.0f, 1.0f, 0.0f,	0.0f, 1.0f,
+
+		 fSize, 0.0f,  fSize,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,
+		-fSize, 0.0f,  fSize,	0.0f, 1.0f, 0.0f,	0.0f, 1.0f,
+
+		-fSize, 0.0f,  fSize,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,
+		-fSize, 0.0f, -fSize,	0.0f, 1.0f, 0.0f,	0.0f, 1.0f,
+	
+		 0.0f, fSize * 1.5f, 0.0f,0.0f, 1.0f, 0.0f,	0.5f, 0.0f,
 	};
 
 
 	GLuint indices[]
 	{
-		0, 1, 2,	// First triangle
-		0, 3, 5,	// Second triangle
-		3, 4, 5,	// Second triangle
-		0, 2, 3,	// Second triangle
+		1, 0, 3,	// Base 1
+		1, 3, 2,	// Base 2
+
+
+		4, 12, 5,	// Side 1
+		6, 12, 7,	// Side 2
+		8, 12, 9,	// Side 3
+		10, 12, 11,	// Side 4
+
+		//3, 4, 2,	// Side 2
+		//4, 4, 1,	// Side 3
+		//1, 4, 0,	// Side 4
+		//
+		//1, 0, 3,
+		//1, 3, 2,
 	};
 
 
@@ -83,7 +109,7 @@ void CMesh::Update()
 	glm::mat4 rotationZ = rotate(glm::mat4(), glm::radians(m_fRotationAngle), m_rotationAxisZ);
 
 	// Scale Matrix
-	glm::mat4 scaleMatrix = scale(glm::mat4(), m_objScale * 100.0f);
+	glm::mat4 scaleMatrix = scale(glm::mat4(), m_objScale * 10.0f);
 
 
 	// Create model matrix to combine them
@@ -99,7 +125,7 @@ void CMesh::Render()
 	// Binds the texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture01);
-	glUniform1i(glGetUniformLocation(*m_pProgram, "tex"), 0);
+	glUniform1i(glGetUniformLocation(*m_pProgram, "tex0"), 0);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture02);
@@ -118,7 +144,7 @@ void CMesh::Render()
 	
 
 	// Draws the triangle
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
 }
 
 

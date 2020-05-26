@@ -43,7 +43,8 @@ int main(int argc, char** argv)
 	system("color f0");
 
 	// Adds text to the console
-	std::cout << std::endl << std::endl << "	Hexagons: LightMode" << std::endl;
+	std::cout << std::endl << std::endl << "	This be mearly a console" << std::endl;
+	std::cout << std::endl << "	Ya better not ask him any questions" << std::endl;
 
 
 	GameManager gameManager(argc, argv);

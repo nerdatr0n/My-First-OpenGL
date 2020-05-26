@@ -35,9 +35,18 @@ public:
 	~CCamera();
 
 	void Render();
+	void Update(float DeltaTime);
 
+	glm::mat4 GetVPMatrix();
+
+	glm::mat4 GetView();
+	glm::mat4 GetProj();
+
+	glm::vec3 GetPos();
 
 private:
+
+	float timeElapsed;
 
 	const unsigned int SCR_WIDTH = Utils::SCR_WIDTH;
 	const unsigned int SCR_HEIGHT = Utils::SCR_HEIGHT;
@@ -47,5 +56,9 @@ private:
 	glm::vec3 camUpDir;
 
 	GLuint* m_pProgram;
+
+
+	glm::mat4 proj;
+	glm::mat4 view;
 };
 
