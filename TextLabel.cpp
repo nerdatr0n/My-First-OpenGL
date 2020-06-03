@@ -15,17 +15,12 @@ TextLabel::TextLabel(std::string _text, std::string _font, glm::vec2 _pos, glm::
 	SetScale(_scale);
 	SetPosition(_pos);
 
-	//if (glewInit() != GLEW_OK)
-	//{
-	//	// If glew setup failed then application will not run graphics correctly
-	//	std::cout << "glew Initalizzation Failed. Aborting application." << std::endl;
-	//	system("pause");
-	//}
+
 
 	GLfloat halfWidth = (GLfloat)Utils::SCR_WIDTH * 0.5f;
 	GLfloat halfHeight = (GLfloat)Utils::SCR_HEIGHT * 0.5f;
 	proj = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight);
-	program = ShaderLoader::CreateProgram("Resource/Shaders/Text.vs", "Resource/Shaders/Text.fs");
+	m_pProgram = ShaderLoader::CreateProgram("Resource/Shaders/Text.vs", "Resource/Shaders/Text.fs");
 
 
 	FT_Library ft;
@@ -88,28 +83,28 @@ TextLabel::TextLabel(std::string _text, std::string _font, glm::vec2 _pos, glm::
 
 }
 
-void TextLabel::Render()
+void TextLabel::Render(glm::vec2 _Position, std::string _text)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glUseProgram(program);
-	glUniform3f(glGetUniformLocation(program, "textColour"), color.x, color.y, color.z);
-	glUniformMatrix4fv(glGetUniformLocation(program, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+	glUseProgram(m_pProgram);
+	glUniform3f(glGetUniformLocation(m_pProgram, "textColour"), color.x, color.y, color.z);
+	glUniformMatrix4fv(glGetUniformLocation(m_pProgram, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glBindVertexArray(VAO);
 
 
 
 	// Iterates through all the characters
-	glm::vec2 textPos = position;
-	for (std::string::const_iterator character = text.begin(); character != text.end(); character++)
+	glm::vec2 textPos = _Position - glm::vec2((float)Utils::SCR_WIDTH / 2, (float)Utils::SCR_HEIGHT / 2);;
+	for (std::string::const_iterator character = _text.begin(); character != _text.end(); character++)
 	{
 		FontChar fontChar = Characters[*character];
 		GLfloat xpos = textPos.x + fontChar.Bearing.x * scale;
 		GLfloat ypos = textPos.y - (fontChar.Size.y - fontChar.Bearing.y) * scale;
 		GLfloat charWidth = fontChar.Size.x * scale;
 		GLfloat charHeight = fontChar.Size.y * scale;
-		
+
 		// Update VBO for each character
 		GLfloat vertices[6][4] = {
 			{ xpos, ypos + charHeight, 0.0, 0.0 }, { xpos, ypos, 0.0, 1.0 }, { xpos + charWidth, ypos, 1.0, 1.0 },
@@ -121,10 +116,10 @@ void TextLabel::Render()
 		// Renders the glyph texture over the quad
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, fontChar.TextureID);
-		glUniform1i(glGetUniformLocation(program, "tex"), 0);
+		glUniform1i(glGetUniformLocation(m_pProgram, "tex"), 0);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		textPos.x += (fontChar.Advance >> 6)* scale; //Advances the cursor for the next glyph
+		textPos.x += (fontChar.Advance >> 6) * scale; //Advances the cursor for the next glyph
 
 	}
 
@@ -138,6 +133,12 @@ void TextLabel::Render()
 	glDisable(GL_BLEND);
 
 
+}
+
+void TextLabel::SetPosition(glm::vec2 newPosition)
+{
+	// This makes the bottom left the origin
+	position = newPosition - glm::vec2((float)Utils::SCR_WIDTH / 2, (float)Utils::SCR_HEIGHT / 2);
 }
 
 GLuint TextLabel::GenerateTexture(FT_Face face)
@@ -159,7 +160,8 @@ GLuint TextLabel::GenerateTexture(FT_Face face)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
+
 
 	return texture;
 }
+

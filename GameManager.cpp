@@ -23,53 +23,6 @@
 GameManager* GlobalGameManager;
 
 
-//
-// Calls the gamemanager render
-// Argument: Void
-// Return: Void
-//
-void RenderCallback()
-{
-	GlobalGameManager->Render();
-}
-
-
-
-//
-// Calls the gamemanager Update
-// Argument: Void
-// Return: Void
-//
-void UpdateCallback()
-{
-	GlobalGameManager->Update();
-}
-
-
-
-//
-// ???
-// Argument: Void
-// Return: Void
-//
-void KeyboardDownCallback(unsigned char key, int x, int y)
-{
-	GlobalGameManager->KeyboardDown(key, x, y);
-}
-
-
-
-//
-// ???
-// Argument: Void
-// Return: Void
-//
-void KeyboardUpCallback(unsigned char key, int x, int y)
-{
-	GlobalGameManager->KeyboardUp(key, x, y);
-}
-
-
 
 //
 // Constructer for GameMaker
@@ -131,12 +84,17 @@ GameManager::GameManager(int argc, char** argv)
 
 	fxThump = new CSound("Resource/Audio/Thump.wav", audioSystem);
 	
-
+	m_pInputs = new CInput();
 	
 	m_vecObjects.push_back(new CMesh(m_pCamera, &basicProgram, glm::vec3(3.0f, 0.0f, 0.0f)));
 	m_vecObjects.push_back(new CMesh(m_pCamera, &basicProgram, glm::vec3(-3.0f, 0.0f, 0.0f)));
 	objSphere = new Sphere();
+
+	
+
 	m_pCubeMap = new CCubeMap(m_pCamera, &cubeMapProgram);
+	model = new Model("Resource/Models/Tank/Tank.obj", m_pCamera);
+
 
 
 	// Wraps the texture
@@ -151,7 +109,7 @@ GameManager::GameManager(int argc, char** argv)
 	CreateTexture(&texture01, "Resource/Textures/Logo Small.png");
 	
 	GameObject = new CObject(m_pCamera, &phongProgram, objSphere->GetVAO(), objSphere->GetIndiceCount(), &texture01);
-	
+	m_pPlayer = new CPlayer(m_pCamera, &phongProgram, objSphere->GetVAO(), objSphere->GetIndiceCount(), &texture01);
 
 	// Sets the clear color when calling glClear()
 	//glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -188,6 +146,10 @@ GameManager::~GameManager()
 	delete objSphere;
 	delete m_pCubeMap;
 	delete m_pCamera;
+	delete model;
+	delete m_pPlayer;
+
+	delete m_pInputs;
 
 	for (int i = 0; i < (int)m_vecObjects.size(); i++)
 	{
@@ -269,11 +231,13 @@ void GameManager::Render()
 	m_pCamera->Render();
 
 
-	Text->Render();
+	Text->Render(glm::vec2(12.0f, 448.0f), "[SAMPLE TEXT]");
 
+	m_pPlayer->Render();
 	//GameObject->Render();
-	GameObject->RenderReflections(&reflectionProgram, m_pCubeMap->GetReflectionMap());
+	//GameObject->RenderReflections(&reflectionProgram, m_pCubeMap->GetReflectionMap());
 	
+	model->Render();
 
 	for (int i = 0; i < (int)m_vecObjects.size(); i++)
 	{
@@ -313,11 +277,13 @@ void GameManager::Update()
 	audioSystem->update();
 
 	m_pCubeMap->Update();
-
+	
+	m_pPlayer->Update(m_pInputs, GetDeltatTime());
+	//GameObject->Update();
+	
 	m_pCamera->Update(GetDeltatTime());
 
-	GameObject->Update();
-
+	
 
 	if (KeyState[' '] == INPUT_FIRST_DOWN)
 	{
@@ -338,34 +304,80 @@ void GameManager::Update()
 	glutPostRedisplay();
 
 
-	for (int i = 0; i < 255; i++)
-	{
-		if (KeyState[i] == INPUT_FIRST_DOWN)
-		{
-			KeyState[i] = INPUT_DOWN;
-		}
-		else if (KeyState[i] == INPUT_FIRST_UP)
-		{
-			KeyState[i] = INPUT_UP;
-		}
-	}
+
+	m_pInputs->Update();
+
+
 
 }
 
 
 
-
-void GameManager::KeyboardInput()
-{
-
-}
 
 void GameManager::KeyboardDown(unsigned char key, int x, int y)
 {
-	KeyState[key] = INPUT_FIRST_DOWN;
+	m_pInputs->KeyboardDown(key, x, y);
 }
 
 void GameManager::KeyboardUp(unsigned char key, int x, int y)
 {
-	KeyState[key] = INPUT_FIRST_UP;
+	m_pInputs->KeyboardUp(key, x, y);
 }
+
+void GameManager::MouseClick(int button, int state, int x, int y)
+{
+	m_pInputs->MouseClick(button, state, x, y);
+}
+
+void GameManager::MousePassiveMove(int x, int y)
+{
+	m_pInputs->MousePassiveMove(x, y);
+}
+
+void GameManager::MouseMove(int x, int y)
+{
+	m_pInputs->MouseMove(x, y);
+}
+
+
+void RenderCallback()
+{
+	GlobalGameManager->Render();
+}
+
+
+void UpdateCallback()
+{
+	GlobalGameManager->Update();
+}
+
+
+void KeyboardDownCallback(unsigned char key, int x, int y)
+{
+	GlobalGameManager->KeyboardDown(key, x, y);
+}
+
+
+void KeyboardUpCallback(unsigned char key, int x, int y)
+{
+	GlobalGameManager->KeyboardUp(key, x, y);
+}
+
+
+void MouseClickCallback(int button, int state, int x, int y)
+{
+	GlobalGameManager->MouseClick(button, state, x, y);
+}
+
+
+void MousePassiveMoveCallback(int x, int y)
+{
+	GlobalGameManager->MousePassiveMove(x, y);
+}
+
+
+void MouseMoveCallback(int x, int y)
+{
+	GlobalGameManager->MouseMove(x, y);
+}
+

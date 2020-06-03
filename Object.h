@@ -29,9 +29,11 @@ public:
 	void Render();
 	void Update();
 	void RenderReflections(GLuint* _pProgram, GLuint* _pTexture);
+	
+	glm::vec3 GetLocation();
+	void SetLocation(glm::vec3 _vec3Location);
 
-
-private:
+protected:
 	GLuint* m_pVAO;
 	CCamera* m_pCamera;
 	GLuint* m_pProgram;

@@ -35,6 +35,9 @@
 #include "Sound.h"
 #include "Object.h"
 #include "CubeMap.h"
+#include "Model.h"
+#include "Player.h"
+
 
 void RenderCallback();
 void UpdateCallback();
@@ -52,18 +55,22 @@ public:
 	void CreateTexture(GLuint* _texture, const CHAR* _fileLocation);
 
 
-
-	void Render();
-	void Update();
-	void KeyboardInput();
-
-	void KeyboardDown(unsigned char key, int x, int y);
-
-	void KeyboardUp(unsigned char key, int x, int y);
-
 	float GetDeltatTime() { return m_fDeltaTime; }
 
+
+	// For callbacks
+	void Render();
+	void Update();
+	void KeyboardDown(unsigned char key, int x, int y);
+	void KeyboardUp(unsigned char key, int x, int y);
+	void MouseClick(int button, int state, int x, int y);
+	void MousePassiveMove(int x, int y);
+	void MouseMove(int x, int y);
+
 private:
+
+	//Inputs 
+	CInput* m_pInputs;
 
 	void UpdateDeltaTime();
 
@@ -106,7 +113,18 @@ private:
 	// Objects
 	std::vector<CMesh*> m_vecObjects;
 	Sphere* objSphere;
+	Model* model;
+
+	CPlayer* m_pPlayer;
 
 };
 
 
+
+void RenderCallback();
+void UpdateCallback();
+void KeyboardDownCallback(unsigned char key, int x, int y);
+void KeyboardUpCallback(unsigned char key, int x, int y);
+void MouseClickCallback(int button, int state, int x, int y);
+void MousePassiveMoveCallback(int x, int y);
+void MouseMoveCallback(int x, int y);

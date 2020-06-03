@@ -11,6 +11,8 @@ CObject::CObject(CCamera* _pCamera, GLuint* _pProgram, GLuint* _pVAO, GLuint _pI
 
 	m_vec3Location = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_vec3Scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	//m_vec3Scale *= 100;
 	m_vec3RotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 	m_fRotationAngle = 0;
 
@@ -90,6 +92,16 @@ void CObject::RenderReflections(GLuint* _pProgram, GLuint* _pTexture)
 	glDrawElements(GL_TRIANGLES, m_pIndiceCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+}
+
+glm::vec3 CObject::GetLocation()
+{
+	return m_vec3Location;
+}
+
+void CObject::SetLocation(glm::vec3 _vec3Location)
+{
+	m_vec3Location = _vec3Location;
 }
 
 

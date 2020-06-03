@@ -32,18 +32,18 @@ CCamera::CCamera(GLuint* _program)
 	m_pProgram = _program;
 
 	// Camera Variables
-	camPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	camPos = glm::vec3(0.0f, 10.0f, 5.0f);
 	camLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
 	camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 void CCamera::Update(float _DeltaTime)
 {
-	timeElapsed += _DeltaTime;
-	GLfloat radius = 10.0f;
-	camPos.x = sin(timeElapsed) * radius;
-	camPos.y = 1.5f;
-	camPos.z = cos(timeElapsed) * radius;
+	//timeElapsed += _DeltaTime;
+	//GLfloat radius = 10.0f;
+	//camPos.x = sin(timeElapsed) * radius;
+	//camPos.y = 1.5f;
+	//camPos.z = cos(timeElapsed) * radius;
 	
 
 	view = glm::lookAt(camPos, glm::vec3(0.0f, 0.0f, 0.0f), camUpDir);

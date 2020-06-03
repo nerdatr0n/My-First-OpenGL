@@ -40,11 +40,11 @@ public:
 
 	~TextLabel() {};
 
-	void Render();
+	void Render(glm::vec2 _Position, std::string _text);
 	void SetText(std::string newText) { text = newText; };
 	void SetColour(glm::vec3 newColor) { color = newColor; };
 	void SetScale(GLfloat newScale) { scale = newScale; };
-	void SetPosition(glm::vec2 newPosition) { position = newPosition; };
+	void SetPosition(glm::vec2 newPosition);
 
 
 private:
@@ -56,7 +56,7 @@ private:
 	glm::vec2 position;
 
 
-	GLuint VAO, VBO, program;
+	GLuint VAO, VBO, m_pProgram;
 	glm::mat4 proj;
 	std::map<GLchar, FontChar> Characters;
 };

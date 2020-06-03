@@ -16,3 +16,20 @@ enum InputState
 	INPUT_FIRST_UP,
 	INPUT_FIRST_DOWN
 };
+
+enum Room
+{
+	SPLASH_SCREEN,
+	MAIN_MENU,
+	MAIN_LEVEL,
+	GAME_OVER,
+};
+
+
+namespace Color
+{
+	const glm::vec3 offWhite = glm::vec3((float)236, (float)236, (float)236) * (float)(1 / 256);
+	const glm::vec3 offBlack = glm::vec3((float)54, (float)54, (float)54) * (float)(1 / 256);
+}
+
+
