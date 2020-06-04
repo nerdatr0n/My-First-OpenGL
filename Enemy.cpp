@@ -1,10 +1,15 @@
-#include "Player.h"
+#include "Enemy.h"
 
-CPlayer::CPlayer(CCamera* _pCamera,
+
+
+
+CEnemy::CEnemy(CCamera* _pCamera,
 	GLuint* _pProgram,
 	GLuint* _pVAO,
 	GLuint _pIndiceCount,
 	GLuint* _pTexture)
+	
+	//CObject(CCamera* _pCamera, GLuint* _pProgram, GLuint* _pVAO, GLuint _pIndiceCount, GLuint* _pTexture)
 {
 	m_pCamera = _pCamera;
 	m_pProgram = _pProgram;
@@ -12,8 +17,9 @@ CPlayer::CPlayer(CCamera* _pCamera,
 	m_pIndiceCount = _pIndiceCount;
 	m_pTexture = _pTexture;
 
-
-	m_vec3Location = glm::vec3(0.0f, 0.0f, 0.0f);
+	
+	
+	m_vec3Location = glm::vec3(5.0f, 0.0f, 5.0f);
 	m_vec3Scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	//m_vec3Scale *= 100;
@@ -32,51 +38,27 @@ CPlayer::CPlayer(CCamera* _pCamera,
 
 	// Create model matrix to combine them
 	m_matModel = translationMatrix * rotationZ * scaleMatrix;
-
 }
 
-CPlayer::~CPlayer()
+CEnemy::~CEnemy()
 {
 }
 
-void CPlayer::Update(CInput* _pInput, float _fDeltaTime)
+void CEnemy::Update(glm::vec3 TargetLocation, float _fDeltaTime)
 {
-	glm::vec2 vec2Input(0, 0);
-	
-	float fMovementSpeed = 10;
-	
-	if (_pInput->GetKey('A') == INPUT_DOWN or _pInput->GetKey('a') == INPUT_DOWN)
-	{
-		vec2Input.x--;
-	}
-	if (_pInput->GetKey('D') == INPUT_DOWN or _pInput->GetKey('d') == INPUT_DOWN)
-	{
-		vec2Input.x++;
-	}
-	
-	if (_pInput->GetKey('W') == INPUT_DOWN or _pInput->GetKey('w') == INPUT_DOWN)
-	{
-		vec2Input.y--;
-	}
-	if (_pInput->GetKey('S') == INPUT_DOWN or _pInput->GetKey('s') == INPUT_DOWN)
-	{
-		vec2Input.y++;
-	}
+	glm::vec3 Velocity;
+	Velocity = TargetLocation - m_vec3Location;
 
+	Velocity = glm::normalize(Velocity) * m_fMovementSpeed;
 
-	//Shoot;
-
-	
-	vec2Input *= fMovementSpeed;
-	
-	//applys input
-	m_vec3Location.x += vec2Input.x * _fDeltaTime;
-	m_vec3Location.z += vec2Input.y * _fDeltaTime;
+	//applys velocity
+	m_vec3Location += Velocity * _fDeltaTime;
 
 
 
 
-		// Translation Matrix
+
+	// Translation Matrix
 	glm::mat4 translationMatrix = translate(glm::mat4(), m_vec3Location);
 
 	// Rotation Matrix
@@ -90,7 +72,7 @@ void CPlayer::Update(CInput* _pInput, float _fDeltaTime)
 	m_matModel = translationMatrix * rotationZ * scaleMatrix;
 }
 
-void CPlayer::Render()
+void CEnemy::Render()
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -124,12 +106,4 @@ void CPlayer::Render()
 	glUseProgram(0);
 }
 
-void CPlayer::Reset()
-{
-	m_vec3Location = glm::vec3(0.0f, 0.0f, 0.0f);
-}
 
-//CPlayer::Shoot()
-//{
-//	bullet
-//}

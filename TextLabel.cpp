@@ -89,7 +89,7 @@ void TextLabel::Render(glm::vec2 _Position, std::string _text)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glUseProgram(m_pProgram);
-	glUniform3f(glGetUniformLocation(m_pProgram, "textColour"), color.x, color.y, color.z);
+	glUniform3f(glGetUniformLocation(m_pProgram, "textColor"), color.x, color.y, color.z);
 	glUniformMatrix4fv(glGetUniformLocation(m_pProgram, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glBindVertexArray(VAO);
 

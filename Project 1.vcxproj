@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="CStartButton.cpp" />
     <ClCompile Include="CubeMap.cpp" />
     <ClCompile Include="GameManager.cpp" />
@@ -167,6 +168,7 @@
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="CStartButton.h" />
     <ClInclude Include="CubeMap.h" />
     <ClInclude Include="GameManager.h" />

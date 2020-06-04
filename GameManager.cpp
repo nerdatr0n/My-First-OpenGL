@@ -82,7 +82,7 @@ GameManager::GameManager(int argc, char** argv)
 	// Initalises the sound manager and sounds
 	AudioInit();
 
-	fxThump = new CSound("Resource/Audio/Thump.wav", audioSystem);
+	fxThump = new CSound("Resource/Audio/Thump.wav", m_pAudioSystem);
 	
 	m_pInputs = new CInput();
 	
@@ -95,6 +95,9 @@ GameManager::GameManager(int argc, char** argv)
 	m_pCubeMap = new CCubeMap(m_pCamera, &cubeMapProgram);
 	model = new Model("Resource/Models/Tank/Tank.obj", m_pCamera);
 
+	m_pLevel = new CLevel(m_pCamera, m_pAudioSystem);
+	m_pSplashScreen = new CSplashScreen(m_pCamera, &basicProgram, m_pAudioSystem);
+	m_pMenuLevel = new CMenuLevel(m_pCamera, &basicProgram, m_pAudioSystem);
 
 
 	// Wraps the texture
@@ -108,21 +111,23 @@ GameManager::GameManager(int argc, char** argv)
 
 	CreateTexture(&texture01, "Resource/Textures/Logo Small.png");
 	
-	GameObject = new CObject(m_pCamera, &phongProgram, objSphere->GetVAO(), objSphere->GetIndiceCount(), &texture01);
-	m_pPlayer = new CPlayer(m_pCamera, &phongProgram, objSphere->GetVAO(), objSphere->GetIndiceCount(), &texture01);
 
 	// Sets the clear color when calling glClear()
 	//glClearColor(1.0, 1.0, 1.0, 1.0);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(1.0, 0.0, 0.0, 1.0);
 
 
 
 	// Register callbacks
 	glutDisplayFunc(RenderCallback);
 	glutIdleFunc(UpdateCallback);
-	//glCloseFunc(ShutDown);
+
 	glutKeyboardFunc(KeyboardDownCallback);
 	glutKeyboardUpFunc(KeyboardUpCallback);
+	glutMouseFunc(MouseClickCallback);
+	glutMotionFunc(MouseMoveCallback);
+	glutPassiveMotionFunc(MousePassiveMoveCallback);
+
 	glutMainLoop();
 
 
@@ -141,7 +146,7 @@ GameManager::~GameManager()
 	fxThump = 0;
 
 
-	audioSystem->release();
+	m_pAudioSystem->release();
 
 	delete objSphere;
 	delete m_pCubeMap;
@@ -150,6 +155,10 @@ GameManager::~GameManager()
 	delete m_pPlayer;
 
 	delete m_pInputs;
+	
+	delete m_pLevel;
+	delete m_pSplashScreen;
+	delete m_pMenuLevel;
 
 	for (int i = 0; i < (int)m_vecObjects.size(); i++)
 	{
@@ -161,14 +170,14 @@ GameManager::~GameManager()
 bool GameManager::AudioInit()
 {
 	FMOD_RESULT result;
-	result = FMOD::System_Create(&audioSystem);
+	result = FMOD::System_Create(&m_pAudioSystem);
 	if (result != FMOD_OK)
 	{
 		return false;
 	}
 
 
-	result = audioSystem->init(100, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0);
+	result = m_pAudioSystem->init(100, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0);
 	if (result != FMOD_OK)
 	{
 		return false;
@@ -222,38 +231,32 @@ void GameManager::Render()
 	// Clears the Buffer - LEAVE AT TOP
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	
-	m_pCubeMap->Render();
-	
-
-	glUseProgram(basicProgram);
-	// All the Camera things
-	m_pCamera->Render();
 
 
-	Text->Render(glm::vec2(12.0f, 448.0f), "[SAMPLE TEXT]");
-
-	m_pPlayer->Render();
-	//GameObject->Render();
-	//GameObject->RenderReflections(&reflectionProgram, m_pCubeMap->GetReflectionMap());
-	
-	model->Render();
-
-	for (int i = 0; i < (int)m_vecObjects.size(); i++)
+	switch (m_rCurrentRoom)
 	{
-		m_vecObjects[i]->Render();
+	case SPLASH_SCREEN:
+	{
+		m_pSplashScreen->Render();
+		break;
 	}
-
-	// Makes and passes in the time uniform
-	currentTime = static_cast<GLfloat>(glutGet(GLUT_ELAPSED_TIME));
-	currentTime = currentTime * 0.001f;
-	
-	GLint currentTimeLoc = glGetUniformLocation(basicProgram, "currentTime");
-	glUniform1f(currentTimeLoc, currentTime);
-
-
-
-	
+	case MAIN_MENU:
+	{
+		m_pMenuLevel->Render(0, 0, 0);
+		break;
+	}
+	case MAIN_LEVEL:
+	{
+		m_pLevel->Render();
+		break;
+	}
+	default:
+	{
+		m_pSplashScreen->Render();
+		break;
+	}
+	}
+	//m_pMenuLevel->Render(0, 0, 0);
 
 	glBindVertexArray(0);
 	glUseProgram(0);
@@ -274,41 +277,60 @@ void GameManager::Render()
 void GameManager::Update()
 {
 	UpdateDeltaTime();
-	audioSystem->update();
+	m_pAudioSystem->update();
+	m_pCamera->Update(GetDeltaTime());
 
-	m_pCubeMap->Update();
-	
-	m_pPlayer->Update(m_pInputs, GetDeltatTime());
-	//GameObject->Update();
-	
-	m_pCamera->Update(GetDeltatTime());
+	m_pAudioSystem->update();
 
-	
+	Room SwitchToRoom;
 
-	if (KeyState[' '] == INPUT_FIRST_DOWN)
+	switch (m_rCurrentRoom)
 	{
+	case SPLASH_SCREEN:
+	{
+		m_pSplashScreen->Update(GetDeltaTime(), m_pInputs);
+		SwitchToRoom = m_pSplashScreen->GetSwitchRoom();
 
-		fxThump->PlaySound();
-
+		break;
+	}
+	case MAIN_MENU:
+	{
+		m_pMenuLevel->Update(GetDeltaTime(), m_pInputs);
+		SwitchToRoom = m_pMenuLevel->GetSwitchRoom();
+		break;
+	}
+	case MAIN_LEVEL:
+	{
+		m_pLevel->Update(GetDeltaTime(), m_pInputs);
+		SwitchToRoom = m_pLevel->GetSwitchRoom();
+		break;
+	}
+	default:
+	{
+		m_pSplashScreen->Update(GetDeltaTime(), m_pInputs);
+		SwitchToRoom = m_pSplashScreen->GetSwitchRoom();
+	}
 	}
 
-	for (int i = 0; i < (int)m_vecObjects.size(); i++)
+	// For switching rooms
+	if (SwitchToRoom != m_rCurrentRoom)
 	{
-		m_vecObjects[i]->Update();
-	}
-	
+		m_rCurrentRoom = SwitchToRoom;
+		if (m_rCurrentRoom == MAIN_LEVEL)
+		{
 
-	
+			m_pLevel->Reset();
+			m_pLevel->Update(GetDeltaTime(), m_pInputs);
+			//m_iLevel++;
+		}
+	}
 
 	// Updates the game
 	glutPostRedisplay();
 
 
-
+	// Updates the inputs for the next update
 	m_pInputs->Update();
-
-
-
 }
 
 

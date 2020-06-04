@@ -118,15 +118,20 @@ void CMesh2D::Render(int _iRenderFrame)
 	// Makes frame offset
 	float fRenderFrame = (1 / (float)m_iFrameCount) * (float)_iRenderFrame;
 
+	// Passes in all the matrixes
+	GLuint modelLoc = glGetUniformLocation(*m_pProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(m_matModel));
+
+	GLuint viewLoc = glGetUniformLocation(*m_pProgram, "view");
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(m_pCamera->GetView2D()));
+
+	GLuint projLoc = glGetUniformLocation(*m_pProgram, "proj");
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(m_pCamera->GetProj2D()));
 
 
 	// Passes in Frame 
 	GLint textureOffset = glGetUniformLocation(*m_pProgram, "TextureOffset");
 	glUniform1f(textureOffset, fRenderFrame);
-
-	// Passes in Location matrix
-	GLuint modelLoc = glGetUniformLocation(*m_pProgram, "model");
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(m_matModel));
 
 
 

@@ -2,25 +2,21 @@
 
 #include "Object.h"
 
-class CPlayer
+class CEnemy// : public CObject
 {
 public:
-	CPlayer(CCamera* _pCamera,
+	CEnemy(CCamera* _pCamera,
 		GLuint* _pProgram,
 		GLuint* _pVAO,
 		GLuint _pIndiceCount,
 		GLuint* _pTexture);
-	~CPlayer();
+	~CEnemy();
 
 	void Render();
-	void Update(CInput* _pInput, float _fDeltaTime);
+	void Update(glm::vec3 TargetLocation, float _fDeltaTime);
 
-	void Reset();
 
-	glm::vec3 GetLocation()
-	{
-		return m_vec3Location;
-	}
+
 
 private:
 	GLuint* m_pVAO;
@@ -36,5 +32,6 @@ private:
 	float m_fRotationAngle;
 
 	glm::mat4 m_matModel;
-};
 
+	float m_fMovementSpeed = 1;
+};

@@ -41,8 +41,11 @@ public:
 
 	glm::mat4 GetView();
 	glm::mat4 GetProj();
-
 	glm::vec3 GetPos();
+
+	glm::mat4 GetProj2D();
+	glm::mat4 GetView2D();
+
 
 private:
 
@@ -51,14 +54,21 @@ private:
 	const unsigned int SCR_WIDTH = Utils::SCR_WIDTH;
 	const unsigned int SCR_HEIGHT = Utils::SCR_HEIGHT;
 
-	glm::vec3 camPos;
-	glm::vec3 camLookDir;
-	glm::vec3 camUpDir;
+	glm::vec3 m_vec3CamPos;
+	glm::vec3 m_vec3CamLookDir;
+	glm::vec3 m_vec3CamUpDir;
 
-	GLuint* m_pProgram;
+	glm::vec3 m_vec3CamPos2D;
+	glm::vec3 m_vec3CamLookDir2D;
+	glm::vec3 m_vec3CamUpDir2D;
+
+	//GLuint* m_pProgram;
 
 
-	glm::mat4 proj;
-	glm::mat4 view;
+	glm::mat4 m_mat4Proj;
+	glm::mat4 m_mat4View;
+
+	glm::mat4 m_mat4Proj2D;
+	glm::mat4 m_mat4View2D;
 };
 

@@ -120,6 +120,10 @@ void CMesh::Update()
 
 void CMesh::Render()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
 	glUseProgram(*m_pProgram);
 
 	// Binds the texture
@@ -135,16 +139,23 @@ void CMesh::Render()
 
 
 
-	// Passes in Location matrix
+	// Passes in all the matrixes
 	GLuint modelLoc = glGetUniformLocation(*m_pProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(m_matModel));
 
+	GLuint viewLoc = glGetUniformLocation(*m_pProgram, "view");
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(m_pCamera->GetView2D()));
 
+	GLuint projLoc = glGetUniformLocation(*m_pProgram, "proj");
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(m_pCamera->GetProj2D()));
 
 	
 
 	// Draws the triangle
 	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
+
+	glBindVertexArray(0);
+	glUseProgram(0);
 }
 
 

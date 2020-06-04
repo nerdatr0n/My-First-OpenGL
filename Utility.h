@@ -4,8 +4,8 @@
 namespace Utils
 {
 
-	const unsigned int SCR_WIDTH = 1200;
-	const unsigned int SCR_HEIGHT = 800;
+	const unsigned int SCR_WIDTH = 1024;
+	const unsigned int SCR_HEIGHT = 512;
 }
 
 

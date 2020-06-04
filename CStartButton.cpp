@@ -25,6 +25,7 @@ void CStartButton::Update(float _deltaTime, CInput* _pInput)
 
 	if (Button->CheckClick(_pInput))
 	{
+		std::cout << "Clicked" << std::endl;
 		SwitchRoom(MAIN_LEVEL);
 	}
 

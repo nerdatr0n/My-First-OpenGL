@@ -17,7 +17,7 @@ public:
 
 	Room GetSwitchRoom();
 
-	std::string GetLevelText(int _iLevel);
+	
 
 private:
 	void SwitchRoom(Room _Room);

@@ -33,7 +33,7 @@ public:
 	glm::vec3 GetLocation();
 	void SetLocation(glm::vec3 _vec3Location);
 
-protected:
+private:
 	GLuint* m_pVAO;
 	CCamera* m_pCamera;
 	GLuint* m_pProgram;

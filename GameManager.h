@@ -37,6 +37,9 @@
 #include "CubeMap.h"
 #include "Model.h"
 #include "Player.h"
+#include "Level.h"
+#include "SplashScreen.h"
+#include "MenuLevel.h"
 
 
 void RenderCallback();
@@ -55,7 +58,7 @@ public:
 	void CreateTexture(GLuint* _texture, const CHAR* _fileLocation);
 
 
-	float GetDeltatTime() { return m_fDeltaTime; }
+	float GetDeltaTime() { return m_fDeltaTime; }
 
 
 	// For callbacks
@@ -98,7 +101,7 @@ private:
 	CCamera* m_pCamera;
 
 	// Audio
-	FMOD::System* audioSystem;
+	FMOD::System* m_pAudioSystem;
 	CSound* fxThump;
 
 	CObject* GameObject;
@@ -117,6 +120,13 @@ private:
 
 	CPlayer* m_pPlayer;
 
+
+	CLevel* m_pLevel;
+	CSplashScreen* m_pSplashScreen;
+	CMenuLevel* m_pMenuLevel;
+
+
+	Room m_rCurrentRoom;
 };
 
 

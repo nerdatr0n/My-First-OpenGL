@@ -29,12 +29,19 @@ CCamera::CCamera(GLuint* _program)
 	timeElapsed = 0;
 
 
-	m_pProgram = _program;
+	//m_pProgram = _program;
 
 	// Camera Variables
-	camPos = glm::vec3(0.0f, 10.0f, 5.0f);
-	camLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
-	camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
+	m_vec3CamPos = glm::vec3(0.0f, 10.0f, 5.0f);
+	m_vec3CamLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
+	m_vec3CamUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
+
+
+	m_vec3CamPos2D = glm::vec3((float)SCR_WIDTH / 2, (float)SCR_HEIGHT / 2, 3.0f);
+	m_vec3CamLookDir2D = glm::vec3(0.0f, 0.0f, -1.0f);
+	m_vec3CamUpDir2D = glm::vec3(0.0f, 1.0f, 0.0f);
+
+
 }
 
 void CCamera::Update(float _DeltaTime)
@@ -46,14 +53,19 @@ void CCamera::Update(float _DeltaTime)
 	//camPos.z = cos(timeElapsed) * radius;
 	
 
-	view = glm::lookAt(camPos, glm::vec3(0.0f, 0.0f, 0.0f), camUpDir);
-	proj = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+	m_mat4View = glm::lookAt(m_vec3CamPos, glm::vec3(0.0f, 0.0f, 0.0f), m_vec3CamUpDir);
+	m_mat4Proj = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+
+	m_mat4View2D = lookAt(m_vec3CamPos2D, m_vec3CamPos2D + m_vec3CamLookDir2D, m_vec3CamUpDir2D);
+	
+	float halfScreenWidth = (float)SCR_WIDTH * 0.5f;
+	float halfScreenHeight = (float)SCR_HEIGHT * 0.5f;
+	m_mat4Proj2D = glm::ortho(-halfScreenWidth, halfScreenWidth, -halfScreenHeight, halfScreenHeight, 0.1f, 100.0f);
 }
 
 glm::mat4 CCamera::GetVPMatrix()
 {
-
-	return proj * view;
+	return m_mat4Proj * m_mat4View;
 }
 
 //
@@ -63,30 +75,39 @@ glm::mat4 CCamera::GetVPMatrix()
 //
 void CCamera::Render()
 {
-	GLuint viewLoc = glGetUniformLocation(*m_pProgram, "view");
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
-
-
-	// Perspective Matrix/Camera
-	GLuint projLoc = glGetUniformLocation(*m_pProgram, "proj");
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(proj));
+	//GLuint viewLoc = glGetUniformLocation(*m_pProgram, "view");
+	//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
+	//
+	//
+	//// Perspective Matrix/Camera
+	//GLuint projLoc = glGetUniformLocation(*m_pProgram, "proj");
+	//glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(proj));
 }
 
 glm::mat4 CCamera::GetView()
 {
-	return view;
+	return m_mat4View;
 }
 
 glm::mat4 CCamera::GetProj()
 {
-	return proj;
+	return m_mat4Proj;
 }
 
 glm::vec3 CCamera::GetPos()
 {
-	return camPos;
+	return m_vec3CamPos;
 }
 
+glm::mat4 CCamera::GetProj2D()
+{
+	return m_mat4Proj2D;
+}
+
+glm::mat4 CCamera::GetView2D()
+{
+	return m_mat4View2D;
+}
 
 //
 // Calls the gamemanager Destructure

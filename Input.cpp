@@ -1,5 +1,6 @@
 #include "Input.h"
 #include <freeglut.h>
+#include <iostream>
 
 
 CInput::CInput()
