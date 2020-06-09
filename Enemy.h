@@ -2,36 +2,28 @@
 
 #include "Object.h"
 
-class CEnemy// : public CObject
+class CEnemy : public CObject
 {
 public:
 	CEnemy(CCamera* _pCamera,
 		GLuint* _pProgram,
 		GLuint* _pVAO,
 		GLuint _pIndiceCount,
-		GLuint* _pTexture);
+		GLuint* _pTexture,
+		FMOD::System* _pAudioSystem);
 	~CEnemy();
 
-	void Render();
-	void Update(glm::vec3 TargetLocation, float _fDeltaTime);
+	void Update(glm::vec3 _vec3TargetLocation, float _fDeltaTime, glm::vec3 _vec3BulletLocation);
 
+	void Reset();
 
-
+	bool GetIncreaseScore();
+	bool GetDamagedPlayer();
 
 private:
-	GLuint* m_pVAO;
-	CCamera* m_pCamera;
-	GLuint* m_pProgram;
-	GLuint* m_pTexture;
-	GLuint m_pIndiceCount;
 
-	// Location info
-	glm::vec3 m_vec3Location;
-	glm::vec3 m_vec3Scale;
-	glm::vec3 m_vec3RotationAxis;
-	float m_fRotationAngle;
+	bool WillIncreaseScore = false;
+	bool WillDamagedPlayer = false;
 
-	glm::mat4 m_matModel;
-
-	float m_fMovementSpeed = 1;
+	float m_fMovementSpeed = 3;
 };

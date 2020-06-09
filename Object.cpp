@@ -1,6 +1,6 @@
 #include "Object.h"
 
-CObject::CObject(CCamera* _pCamera, GLuint* _pProgram, GLuint* _pVAO, GLuint _pIndiceCount, GLuint* _pTexture)
+CObject::CObject(CCamera* _pCamera, GLuint* _pProgram, GLuint* _pVAO, GLuint _pIndiceCount, GLuint* _pTexture, FMOD::System* _pAudioSystem)
 {
 	m_pCamera = _pCamera;
 	m_pProgram = _pProgram;

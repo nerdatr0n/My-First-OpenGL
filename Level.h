@@ -12,6 +12,7 @@
 #include "Sphere.h"
 #include "CubeMap.h"
 #include "Enemy.h"
+#include "Model.h"
 
 class CLevel
 {
@@ -40,7 +41,7 @@ private:
 	Room m_Room = MAIN_LEVEL;
 	bool m_bSwitchRoomFlag = false;
 
-
+	int m_iHighScore = 0;
 	int m_iScore;
 	int m_iLives;
 
@@ -53,6 +54,7 @@ private:
 	CPlayer* m_pPlayer;
 	CEnemy* m_pEnemy01;
 	CEnemy* m_pEnemy02;
+	CBullet* m_pBullet;
 
 	CMesh2D* m_pHearts;
 
@@ -60,13 +62,13 @@ private:
 
 	CCamera* m_pCamera;
 
-	int m_iHighScore = 0;
 
 
 	GLuint m_pBasicProgram;
 	GLuint m_pPhongProgram;
 	GLuint m_pRimLightingProgram;
 	GLuint m_pCubeMapProgram;
+	GLuint m_pReflectionProgram;
 
 
 	CCubeMap* m_pCubeMap;
@@ -76,5 +78,7 @@ private:
 	GLuint m_pPlayerTexture;
 	GLuint m_pEnemyTexture;
 
+	Model* m_pTank;
+	Model* m_pPug;
 };
 

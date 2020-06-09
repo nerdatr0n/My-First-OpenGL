@@ -44,7 +44,7 @@ public:
 	}
 
 	// Render the mesh
-	void Render(CCamera* camera, GLuint program)
+	void Render(CCamera* camera, GLuint program, glm::mat4 _mat4Model)
 	{
 		glUseProgram(program);
 
@@ -69,13 +69,20 @@ public:
 			glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
 		}
 		
-		// EDIT
-		glm::mat4 model;
-		glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(0.2f, 0.2f, 0.2f));
-		glm::mat4 mvp = camera->GetVPMatrix() * scale;
-		GLint mvpLoc = glGetUniformLocation(program, "MVP");
-		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-		// EDIT END
+
+		// Passes in Location matrix
+		GLuint modelLoc = glGetUniformLocation(program, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(_mat4Model));
+
+		GLuint viewLoc = glGetUniformLocation(program, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(camera->GetView()));
+
+		GLuint projLoc = glGetUniformLocation(program, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(camera->GetProj()));
+
+		GLuint camPos = glGetUniformLocation(program, "camPos");
+		glUniform3fv(camPos, 1, value_ptr(camera->GetPos()));
+
 
 		// Draw mesh
 		glBindVertexArray(this->VAO);

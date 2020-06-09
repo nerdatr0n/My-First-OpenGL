@@ -37,10 +37,10 @@ public:
 	
 	/*  Functions   */
 	// Constructor, expects a filepath to a 3D model.
-	Model(std::string path, CCamera* camera){
+	Model(std::string path, CCamera* camera, GLuint _pProgram){
 
 		// EDIT
-		this->program = ShaderLoader::CreateProgram("Resource/Shaders/Model.vs", "Resource/Shaders/Model.fs");
+		this->program = _pProgram;
 		// EDIT END
 
 		this->camera = camera;
@@ -48,13 +48,13 @@ public:
 	}
 
 	// Draws the model, and thus all its meshes
-	void Render()
+	void Render(glm::mat4 _mat4Model)
 	{
 		for (GLuint i = 0; i < this->meshes.size(); i++) {
 
 		//printf("mesh size: %d \n", meshes.size());
 
-			this->meshes[i].Render(camera, program);
+			this->meshes[i].Render(camera, program, _mat4Model);
 		}
 	}
 

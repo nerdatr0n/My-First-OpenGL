@@ -1,19 +1,20 @@
 #pragma once
 
 #include "Object.h"
+#include "Bullet.h"
 
-class CPlayer
+class CPlayer : public CObject
 {
 public:
 	CPlayer(CCamera* _pCamera,
 		GLuint* _pProgram,
 		GLuint* _pVAO,
 		GLuint _pIndiceCount,
-		GLuint* _pTexture);
+		GLuint* _pTexture,
+		FMOD::System* _pAudioSystem);
 	~CPlayer();
 
-	void Render();
-	void Update(CInput* _pInput, float _fDeltaTime);
+	void Update(CInput* _pInput, float _fDeltaTime, CBullet* _pBullet);
 
 	void Reset();
 
@@ -22,19 +23,13 @@ public:
 		return m_vec3Location;
 	}
 
+	bool ShootBullet(CInput* _pInput, CBullet* _pBullet);
+
+
 private:
-	GLuint* m_pVAO;
-	CCamera* m_pCamera;
-	GLuint* m_pProgram;
-	GLuint* m_pTexture;
-	GLuint m_pIndiceCount;
+	float m_fBulletCooldown = 0;
+	float m_fBulletCooldownLength = 1;
 
-	// Location info
-	glm::vec3 m_vec3Location;
-	glm::vec3 m_vec3Scale;
-	glm::vec3 m_vec3RotationAxis;
-	float m_fRotationAngle;
-
-	glm::mat4 m_matModel;
+	CSound* m_pShootSound;
 };
 

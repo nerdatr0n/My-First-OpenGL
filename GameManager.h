@@ -81,45 +81,20 @@ private:
 	float m_fCurrentTime;
 	float m_fDeltaTime;
 
-	InputState KeyState[255];
-	TextLabel* Text;
+	TextLabel* m_pText;
 
-	GLuint basicProgram;
-	GLuint sphereProgram;
-	GLuint phongProgram;
-	GLuint cubeMapProgram;
-	GLuint reflectionProgram;
-	GLfloat currentTime;
+	GLuint m_iBasicProgram;
 
-	GLuint texture01;
-	GLuint texture02;
-
-	GLuint VAO;
-	GLuint EBO;
-	GLuint VBO;
 
 	CCamera* m_pCamera;
 
 	// Audio
 	FMOD::System* m_pAudioSystem;
-	CSound* fxThump;
 
-	CObject* GameObject;
-
-	CCubeMap* m_pCubeMap;
 
 	// Screen/Viewport size
 	const unsigned int SCR_WIDTH = Utils::SCR_WIDTH;
 	const unsigned int SCR_HEIGHT = Utils::SCR_HEIGHT;
-
-
-	// Objects
-	std::vector<CMesh*> m_vecObjects;
-	Sphere* objSphere;
-	Model* model;
-
-	CPlayer* m_pPlayer;
-
 
 	CLevel* m_pLevel;
 	CSplashScreen* m_pSplashScreen;

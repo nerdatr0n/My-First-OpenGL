@@ -31,7 +31,7 @@ GameManager* GlobalGameManager;
 //
 GameManager::GameManager(int argc, char** argv)
 {
-	currentTime = 0;
+	m_fCurrentTime = 0;
 
 	GlobalGameManager = this;
 
@@ -63,41 +63,27 @@ GameManager::GameManager(int argc, char** argv)
 	}
 
 
-	Text = new TextLabel("[SAMPLE TEXT]", "Resource/Fonts/AdventPro-Bold.ttf", glm::vec2(-500.0f, 300.0f));
+	m_pText = new TextLabel("[SAMPLE TEXT]", "Resource/Fonts/AdventPro-Bold.ttf", glm::vec2(-500.0f, 300.0f));
 
 	// Creates the program
-	basicProgram = ShaderLoader::CreateProgram("Resource/Shaders/basic.vs",
+	m_iBasicProgram = ShaderLoader::CreateProgram("Resource/Shaders/basic.vs",
 		"Resource/Shaders/basic.fs");
-	phongProgram = ShaderLoader::CreateProgram("Resource/Shaders/phong.vs",
-		"Resource/Shaders/BlinnPhong.fs");
-	cubeMapProgram = ShaderLoader::CreateProgram("Resource/Shaders/cubeMap.vs",
-		"Resource/Shaders/cubeMap.fs");
-	reflectionProgram = ShaderLoader::CreateProgram("Resource/Shaders/Reflection.vs",
-		"Resource/Shaders/Reflection.fs");
 
-	m_pCamera = new CCamera(&basicProgram);
+
+	m_pCamera = new CCamera(&m_iBasicProgram);
 
 	
 
 	// Initalises the sound manager and sounds
 	AudioInit();
 
-	fxThump = new CSound("Resource/Audio/Thump.wav", m_pAudioSystem);
 	
 	m_pInputs = new CInput();
 	
-	m_vecObjects.push_back(new CMesh(m_pCamera, &basicProgram, glm::vec3(3.0f, 0.0f, 0.0f)));
-	m_vecObjects.push_back(new CMesh(m_pCamera, &basicProgram, glm::vec3(-3.0f, 0.0f, 0.0f)));
-	objSphere = new Sphere();
-
-	
-
-	m_pCubeMap = new CCubeMap(m_pCamera, &cubeMapProgram);
-	model = new Model("Resource/Models/Tank/Tank.obj", m_pCamera);
 
 	m_pLevel = new CLevel(m_pCamera, m_pAudioSystem);
-	m_pSplashScreen = new CSplashScreen(m_pCamera, &basicProgram, m_pAudioSystem);
-	m_pMenuLevel = new CMenuLevel(m_pCamera, &basicProgram, m_pAudioSystem);
+	m_pSplashScreen = new CSplashScreen(m_pCamera, &m_iBasicProgram, m_pAudioSystem);
+	m_pMenuLevel = new CMenuLevel(m_pCamera, &m_iBasicProgram, m_pAudioSystem);
 
 
 	// Wraps the texture
@@ -108,9 +94,6 @@ GameManager::GameManager(int argc, char** argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-
-	CreateTexture(&texture01, "Resource/Textures/Logo Small.png");
-	
 
 	// Sets the clear color when calling glClear()
 	//glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -142,28 +125,17 @@ GameManager::GameManager(int argc, char** argv)
 //
 GameManager::~GameManager()
 {
-	delete fxThump;
-	fxThump = 0;
-
-
 	m_pAudioSystem->release();
 
-	delete objSphere;
-	delete m_pCubeMap;
+
 	delete m_pCamera;
-	delete model;
-	delete m_pPlayer;
+
 
 	delete m_pInputs;
 	
 	delete m_pLevel;
 	delete m_pSplashScreen;
 	delete m_pMenuLevel;
-
-	for (int i = 0; i < (int)m_vecObjects.size(); i++)
-	{
-		delete m_vecObjects[i];
-	}
 }
 
 
@@ -242,7 +214,7 @@ void GameManager::Render()
 	}
 	case MAIN_MENU:
 	{
-		m_pMenuLevel->Render(0, 0, 0);
+		m_pMenuLevel->Render(0, m_pLevel->GetHighScore(), m_pLevel->GetScore());
 		break;
 	}
 	case MAIN_LEVEL:
@@ -277,7 +249,7 @@ void GameManager::Render()
 void GameManager::Update()
 {
 	UpdateDeltaTime();
-	m_pAudioSystem->update();
+	//m_pAudioSystem->update();
 	m_pCamera->Update(GetDeltaTime());
 
 	m_pAudioSystem->update();

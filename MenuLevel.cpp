@@ -8,7 +8,7 @@ CMenuLevel::CMenuLevel(CCamera* _pCamera, GLuint* _pProgram, FMOD::System* _audi
 		"Resource/Textures/MenuBackground.png",
 		glm::vec2(1024, 512),
 		2,
-		glm::vec3(512.0f, 256.0f, -9.0f));
+		glm::vec3(512.0f, 256.0f, -90.0f));
 
 	StartButton = new CStartButton(_pCamera, _pProgram, _audioSystem);
 
@@ -41,6 +41,7 @@ void CMenuLevel::Update(float _deltaTime, CInput* _pInput)
 
 void CMenuLevel::Render(int _Level, int _iHighScore, int m_iPreviousScore)
 {
+
 	int iBackgroundFrame = 0;
 	if (_Level > 0 or _iHighScore != 0)
 	{
@@ -51,14 +52,13 @@ void CMenuLevel::Render(int _Level, int _iHighScore, int m_iPreviousScore)
 
 	StartButton->Render();
 
-		fntPixel->Render(glm::vec2(12.0f, 476.0f), "High Score: " + std::to_string(_iHighScore));
+
+	fntPixel->Render(glm::vec2(12.0f, 476.0f), "High Score: " + std::to_string(_iHighScore));
 	if (_Level > 0 or _iHighScore != 0)
 	{
 		fntPixel->Render(glm::vec2(12.0f, 448.0f), "Score: " + std::to_string(m_iPreviousScore));
 	}
 
-
-	//fntPixel->Render(glm::vec2(12.0f, 17.0f), GetLevelText(_Level));
 }
 
 
